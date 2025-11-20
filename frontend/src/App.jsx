@@ -5,81 +5,206 @@ import logo from "./assets/mintify-logo.png";
 function App() {
   return (
     <div className="app">
-      {/* NAVBAR */}
-      <header className="navbar">
-        <div className="navbar-logo">
-          <img src={logo} alt="Mintify logo" className="logo-image" />
-          <span className="logo-text">mintify</span>
-        </div>
-
-        <nav className="navbar-links">
-          <a href="#dashboard">Dashboard</a>
-          <a href="#budgets">Budgets</a>
-          <a href="#transactions">Transactions</a>
-          <a href="#profile" className="navbar-cta">
-            Profile
-          </a>
-        </nav>
-      </header>
-
-      {/* MAIN SECTION */}
-      <main className="main">
-        {/* LEFT PANEL */}
-        <section className="hero" id="dashboard">
-          <h1>HELLO MINTIFY</h1>
-          <p className="hero-subtitle">
-            Track your spending, manage budgets, and gain financial clarity.
-          </p>
-
-          <div className="hero-actions">
-            <button className="btn primary">Add Transaction</button>
-            <button className="btn secondary">Create Budget</button>
-          </div>
-
-          <div className="hero-card">
-            <h2>Overview</h2>
-            <p>
-              This section will later update dynamically with your spending data,
-              budget usage, and recommendations from your backend services.
-            </p>
-          </div>
-        </section>
-
-        {/* RIGHT SIDEBAR */}
+      <div className="app-shell">
+        {/* -------- SIDEBAR -------- */}
         <aside className="sidebar">
-          <h2>Today's Summary</h2>
-          <ul className="stats-list">
-            <li>
-              <span className="stat-label">Total spent</span>
-              <span className="stat-value">€42.80</span>
-            </li>
-            <li>
-              <span className="stat-label">Budgets over limit</span>
-              <span className="stat-value">1</span>
-            </li>
-            <li>
-              <span className="stat-label">Pending alerts</span>
-              <span className="stat-value">3</span>
-            </li>
-          </ul>
+          <div className="sidebar-logo">
+            <img src={logo} alt="Mintify logo" />
+            <span className="brand-name">mintify</span>
+          </div>
 
-          <h3 className="sidebar-subtitle">Recent Notifications</h3>
-          <ul className="notification-list">
-            <li>💳 New transaction at ICA – €18.50</li>
-            <li>⚠️ Groceries budget at 85% of limit</li>
-            <li>📊 Weekly summary report is ready</li>
-          </ul>
+          <nav className="sidebar-nav">
+            <p className="sidebar-section-label">GENERAL</p>
+            <a href="#dashboard" className="nav-item active">
+              <span className="nav-dot" />
+              Dashboard
+            </a>
+            <a href="#spendings" className="nav-item">
+              <span className="nav-dot" />
+              Spendings
+            </a>
+            <a href="#budgets" className="nav-item">
+              <span className="nav-dot" />
+              Budgets
+            </a>
+            <a href="#calendar" className="nav-item">
+              <span className="nav-dot" />
+              Calendar
+            </a>
+
+            <p className="sidebar-section-label">TOOLS</p>
+            <a href="#reports" className="nav-item">
+              <span className="nav-dot" />
+              Reports
+            </a>
+            <a href="#settings" className="nav-item">
+              <span className="nav-dot" />
+              Settings
+            </a>
+          </nav>
+
+          <button className="logout-btn">Log out</button>
         </aside>
-      </main>
 
-      {/* FOOTER */}
-      <footer className="footer">
-        <p>© {new Date().getFullYear()} Mintify · M7011E Dynamic Web Systems</p>
-      </footer>
+        {/* -------- MAIN CONTENT -------- */}
+        <div className="content">
+          {/* TOPBAR */}
+          <header className="topbar">
+            <div className="search-wrapper">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search transactions, budgets..."
+              />
+            </div>
+
+            <div className="topbar-right">
+              <button className="pill-btn">This month</button>
+              <button className="round-btn">👤</button>
+            </div>
+          </header>
+
+          {/* MAIN AREA (single column now) */}
+          <main className="main" id="dashboard">
+            {/* HEADER */}
+            <section className="left-panel" id="spendings">
+              <header className="panel-header">
+                <h1>Your spendings & budgets</h1>
+                <p className="muted">
+                  Overview of your spending breakdown and budget status for this
+                  month.
+                </p>
+              </header>
+
+              {/* SUMMARY CARDS ROW */}
+              <div className="summary-row">
+                {/* Total spent + donut placeholder */}
+                <div className="donut-card">
+                  <p className="muted-small">Total spent this month</p>
+                  <h2 className="big-amount">€ 2,340</h2>
+                  <p className="muted-small">Across 54 transactions</p>
+
+                  <div className="donut-placeholder">Donut chart placeholder</div>
+
+                  <div className="legend-row">
+                    <span className="legend-dot orange" />
+                    <span className="legend-label">Food</span>
+
+                    <span className="legend-dot yellow" />
+                    <span className="legend-label">Groceries</span>
+
+                    <span className="legend-dot blue" />
+                    <span className="legend-label">Entertainment</span>
+
+                    <span className="legend-dot green" />
+                    <span className="legend-label">Travel</span>
+
+                    <span className="legend-dot purple" />
+                    <span className="legend-label">Shopping</span>
+                  </div>
+                </div>
+
+                {/* Bar chart card */}
+                <div className="bar-card">
+                  <p className="muted-small">Spending by category</p>
+                  <h3 className="bar-title">This month&apos;s breakdown</h3>
+
+                  <div className="bar-list">
+                    <div className="bar-row">
+                      <div className="bar-label">Food</div>
+                      <div className="bar-track">
+                        <div className="bar-fill food" style={{ width: "35%" }} />
+                      </div>
+                      <div className="bar-amount">€ 420</div>
+                    </div>
+
+                    <div className="bar-row">
+                      <div className="bar-label">Groceries</div>
+                      <div className="bar-track">
+                        <div
+                          className="bar-fill groceries"
+                          style={{ width: "50%" }}
+                        />
+                      </div>
+                      <div className="bar-amount">€ 610</div>
+                    </div>
+
+                    <div className="bar-row">
+                      <div className="bar-label">Entertainment</div>
+                      <div className="bar-track">
+                        <div
+                          className="bar-fill entertainment"
+                          style={{ width: "15%" }}
+                        />
+                      </div>
+                      <div className="bar-amount">€ 180</div>
+                    </div>
+
+                    <div className="bar-row">
+                      <div className="bar-label">Travel</div>
+                      <div className="bar-track">
+                        <div className="bar-fill travel" style={{ width: "25%" }} />
+                      </div>
+                      <div className="bar-amount">€ 320</div>
+                    </div>
+
+                    <div className="bar-row">
+                      <div className="bar-label">Shopping</div>
+                      <div className="bar-track">
+                        <div
+                          className="bar-fill shopping"
+                          style={{ width: "22%" }}
+                        />
+                      </div>
+                      <div className="bar-amount">€ 310</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* BIG CATEGORY CARDS */}
+              <div className="spending-cards">
+                <div className="spending-card pink">
+                  <p className="card-label">Food</p>
+                  <h3>€ 420</h3>
+                  <p className="muted-small">Dining out, coffee, snacks</p>
+                  <span className="delta-badge up">+2.3% vs last month</span>
+                </div>
+
+                <div className="spending-card yellow">
+                  <p className="card-label">Groceries</p>
+                  <h3>€ 610</h3>
+                  <p className="muted-small">Supermarket & essentials</p>
+                  <span className="delta-badge down">-0.8% vs last month</span>
+                </div>
+
+                <div className="spending-card blue">
+                  <p className="card-label">Entertainment</p>
+                  <h3>€ 180</h3>
+                  <p className="muted-small">Movies, subscriptions, events</p>
+                  <span className="delta-badge up">+4.1% vs last month</span>
+                </div>
+
+                <div className="spending-card green">
+                  <p className="card-label">Travel</p>
+                  <h3>€ 320</h3>
+                  <p className="muted-small">Flights, trains, transport</p>
+                  <span className="delta-badge up">+1.2% vs last month</span>
+                </div>
+
+                <div className="spending-card purple">
+                  <p className="card-label">Shopping</p>
+                  <h3>€ 310</h3>
+                  <p className="muted-small">Clothes, gadgets, extras</p>
+                  <span className="delta-badge down">-3.0% vs last month</span>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default App;
-
-
