@@ -1,18 +1,15 @@
 /* ========== GLOBAL (Warm pastel Mintify palette) ========= */
 :root {
-  /* Base palette remapped to Luma-style colors */
-  --butterscotch: #FFEEC3;   /* main background cream */
-  --strawberry: #F8C7A4;     /* peachy pink */
-  --mint-glow: #A9C7E2;      /* soft sky blue accent */
-  --golden-goose: #F7D766;   /* butter yellow highlight */
-  --brown-moss: #5F4636;     /* warm brown text */
-
-  /* extra deep accent for buttons / strong elements */
+  --butterscotch: #FFEEC3;
+  --strawberry: #F8C7A4;
+  --mint-glow: #A9C7E2;
+  --golden-goose: #F7D766;
+  --brown-moss: #5F4636;
   --deep-cherry: #B33D36;
 
   --bg: var(--butterscotch);
-  --surface: #FFF6E9;        /* softer, warmer surface */
-  --sidebar: #F8C7A4;        /* pastel sidebar instead of black */
+  --surface: #FFF6E9;
+  --sidebar: var(--strawberry);
   --text-main: var(--brown-moss);
   --text-muted: #8b6f5b;
 
@@ -24,6 +21,9 @@
 body {
   background-color: var(--bg);
   color: var(--text-main);
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
 }
 
 /* ========== APP SHELL ========= */
@@ -41,8 +41,8 @@ body {
 
 /* ========== SIDEBAR ========= */
 .sidebar {
-  background: var(--sidebar);
-  color: var(--brown-moss);
+  background: var(--sidebar) !important;
+  color: var(--brown-moss) !important;
   padding: 1.6rem 1.4rem;
   display: flex;
   flex-direction: column;
@@ -70,7 +70,7 @@ body {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #9b6a5b;
+  color: var(--brown-moss);
   margin-top: 1.4rem;
   margin-bottom: 0.5rem;
 }
@@ -85,7 +85,7 @@ body {
   gap: 0.55rem;
   padding: 0.55rem 0.7rem;
   border-radius: var(--radius-pill);
-  color: var(--brown-moss);
+  color: var(--brown-moss) !important;
   font-size: 0.9rem;
   text-decoration: none;
   transition: 0.2s ease;
@@ -97,8 +97,8 @@ body {
 }
 
 .nav-item.active {
-  background: var(--deep-cherry);
-  color: #fffaf3;
+  background: var(--deep-cherry) !important;
+  color: #fffaf3 !important;
 }
 
 .nav-dot {
@@ -161,7 +161,7 @@ body {
   border-radius: var(--radius-pill);
   padding: 0.45rem 0.9rem;
   background: var(--deep-cherry);
-  color: #fff7ed;
+  color: #fff;
   cursor: pointer;
   font-size: 0.8rem;
 }
@@ -270,11 +270,7 @@ body {
   background: #ead7f4;
 }
 
-.legend-label {
-  margin-right: 0.4rem;
-}
-
-/* BAR CARD */
+/* BAR */
 .bar-title {
   margin-top: 0.25rem;
   font-size: 1.05rem;
@@ -313,7 +309,7 @@ body {
 }
 
 .bar-fill.food {
-  background: var(--strawberry);
+  background: #E16A5A;
 }
 
 .bar-fill.groceries {
@@ -337,26 +333,71 @@ body {
   color: var(--brown-moss);
 }
 
-/* CATEGORY CARDS */
+/* ========== CATEGORY CARDS – STAR SHAPES ========== */
+
 .spending-cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem;
+  gap: 1.4rem;
+  margin-top: 1.4rem;
 }
 
-.spending-card {
-  padding: 1.2rem 1.3rem;
-  border-radius: 26px;
+@media (max-width: 1100px) {
+  .spending-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .spending-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* whole card is a star / flower blob */
+.star-card {
   position: relative;
-  min-height: 160px;
-  box-shadow: 0 12px 30px rgba(110, 75, 52, 0.12);
+  padding: 1.6rem 1.4rem 1.4rem;
+  min-height: 170px;
+  box-shadow: 0 12px 26px rgba(110, 75, 52, 0.18);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  color: #3b2a23;
+
+  /* spiky star shape */
+  clip-path: polygon(
+    50% 0%,
+    65% 10%,
+    82% 5%,
+    86% 22%,
+    100% 30%,
+    90% 45%,
+    100% 60%,
+    88% 70%,
+    92% 88%,
+    74% 84%,
+    60% 100%,
+    50% 86%,
+    40% 100%,
+    26% 84%,
+    8% 88%,
+    12% 70%,
+    0% 60%,
+    10% 45%,
+    0% 30%,
+    14% 22%,
+    18% 5%,
+    35% 10%
+  );
 }
 
+/* inner text */
 .card-label {
   font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.4rem;
 }
 
 .spending-card h3 {
@@ -383,27 +424,53 @@ body {
   color: #b91c1c;
 }
 
-/* COLOR THEMES FOR CATEGORY CARDS */
-.spending-card.pink {
-  background: var(--strawberry);
+/* ====== COLOURS (roughly like your palette) ====== */
+
+/* Food – warm red/orange */
+.star-food {
+  background: #e16a5a;
+  color: #fff;
 }
 
-.spending-card.yellow {
-  background: var(--golden-goose);
+/* Groceries – yellow-green */
+.star-groceries {
+  background: #d5d845;
 }
 
-.spending-card.blue {
-  background: var(--mint-glow);
+/* Entertainment – bubblegum pink */
+.star-entertainment {
+  background: #f69ac5;
 }
 
-.spending-card.green {
-  background: #dfe9c8;
+/* Travel – blue */
+.star-travel {
+  background: #a4c3df;
 }
 
-.spending-card.purple {
-  background: #ead7f4;
+/* Shopping – lilac */
+.star-shopping {
+  background: #e6bdf4;
 }
-/* ========== AUTH (LOGIN PAGE) ========= */
+/* Center all text inside spiky cards */
+.spending-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical centering */
+  align-items: center;        /* horizontal centering */
+  text-align: center;
+  padding: 3rem 2rem;         /* extra spacing so text doesn’t touch spikes */
+}
+
+/* Optional: center the delta badge at bottom */
+.spending-card .delta-badge {
+  position: static;
+  margin-top: 1rem;
+}
+
+
+/* ========================================================= */
+/* =============== LOGIN PAGE STYLING ====================== */
+/* ========================================================= */
 
 .auth-wrapper {
   min-height: 100vh;
@@ -414,20 +481,57 @@ body {
   padding: 2rem;
 }
 
-.auth-card {
-  background: var(--surface);
-  border-radius: 28px;
-  box-shadow: 0 18px 50px rgba(110, 75, 52, 0.18);
-  padding: 2rem 2.4rem;
-  max-width: 420px;
+/* Shell: left logo + right form */
+.auth-shell {
   width: 100%;
+  max-width: 980px;
+  border-radius: 32px;
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgba(110, 75, 52, 0.18);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
 }
 
-.auth-logo {
+/* LEFT SIDE — hero image */
+.logo-only {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(
+    135deg,
+    var(--strawberry) 0%,
+    var(--golden-goose) 100%
+  );
+  padding: 0;
+}
+
+.auth-big-logo {
+  width: 90%;            /* HUGE */
+  max-width: 650px;      /* cap for very large screens */
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 12px 18px rgba(0,0,0,0.08));
+}
+
+/* Make the left side bigger overall */
+.auth-shell {
+  grid-template-columns: 1.6fr 1fr;   /* left = bigger area */
+}
+
+
+/* RIGHT SIDE — FORM */
+.auth-right {
+  padding: 2.2rem 2.6rem;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.4rem;
+  justify-content: center;
+}
+
+.auth-card {
+  max-width: 360px;
+  width: 100%;
 }
 
 .auth-title {
@@ -519,4 +623,25 @@ body {
   font-size: 0.8rem;
   text-align: center;
   color: var(--text-muted);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .logo-only {
+    padding: 2rem;
+  }
+
+  .auth-right {
+    padding: 2rem 1.5rem;
+  }
+}
+/* Just in case old hero classes still exist, hide them */
+.auth-left-title,
+.auth-left-subtitle,
+.auth-perks {
+  display: none !important;
 }
