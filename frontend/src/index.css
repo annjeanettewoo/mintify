@@ -1,29 +1,40 @@
-/* src/index.css */
+/* ========== GLOBAL BASE STYLES (use same palette as App.css) ========= */
+:root {
+  --butterscotch: #FFEEC3;   /* main background cream */
+  --strawberry: #F8C7A4;     /* peachy pink */
+  --mint-glow: #A9C7E2;      /* soft sky blue accent */
+  --golden-goose: #F7D766;   /* butter yellow highlight */
+  --brown-moss: #5F4636;     /* warm brown text */
+  --deep-cherry: #B33D36;
 
-/* basic global reset */
-* {
+  --bg: var(--butterscotch);
+  --surface: #FFF6E9;
+  --sidebar: #F8C7A4;
+  --text-main: var(--brown-moss);
+  --text-muted: #8b6f5b;
+
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+}
+
+/* basic reset */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* global font + background (matches palette) */
-:root {
+body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #543618; /* brown moss */
-  background-color: #fceaca; /* butterscotch */
+  background-color: var(--bg);
+  color: var(--text-main);
 }
 
-/* let the app take the full screen */
-body {
-  margin: 0;
-  min-height: 100vh;
-}
-
-/* IMPORTANT: no max-width, no text-align center here */
+/* make the React root fill the page */
 #root {
   min-height: 100vh;
 }
