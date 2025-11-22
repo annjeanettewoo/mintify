@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mintify-tls
+  namespace: mintify
+spec:
+  secretName: mintify-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - auth.ltu-m7011e-9.se
+    - finance.ltu-m7011e-9.se
+    - mintify.ltu-m7011e-9.se

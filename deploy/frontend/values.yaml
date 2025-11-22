@@ -1,0 +1,17 @@
+app:
+  name: frontend
+
+image:
+  repository: junteak/mintify-frontend
+  tag: "v1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: traefik
+  host: mintify.ltu-m7011e-9.se
+  path: /
