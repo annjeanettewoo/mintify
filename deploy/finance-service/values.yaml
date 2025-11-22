@@ -1,0 +1,17 @@
+app:
+  name: finance-service
+
+image:
+  repository: junteak/mintify-finance-service
+  tag: "v2"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 4002
+
+ingress:
+  enabled: true
+  className: traefik
+  host: finance.ltu-m7011e-9.se
+  path: /
