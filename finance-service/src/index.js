@@ -18,6 +18,15 @@ app.get('/health', (req, res) => {
         service: 'finance-service'});
 });
 
+// NEW route for Kubernetes ingress path
+app.get('/finance/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'finance-service',
+    via: '/finance/health',
+  });
+});
+
 // API routes
 app.use('/api', financeRoutes);
 app.use('/api/budgets', budgetRoutes);
