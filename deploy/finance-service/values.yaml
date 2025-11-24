@@ -3,8 +3,8 @@ app:
 
 image:
   repository: junteak/mintify-finance-service
-  tag: "v2"
-  pullPolicy: IfNotPresent
+  tag: "amd64-v1"
+  pullPolicy: Always
 
 service:
   type: ClusterIP

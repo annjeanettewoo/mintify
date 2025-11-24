@@ -3,8 +3,8 @@ app:
 
 image:
   repository: junteak/mintify-auth-service
-  tag: "v1"
-  pullPolicy: IfNotPresent
+  tag: "amd64-v1"
+  pullPolicy: Always
 
 service:
   type: ClusterIP

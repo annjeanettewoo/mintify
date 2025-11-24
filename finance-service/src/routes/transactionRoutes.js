@@ -1,9 +1,42 @@
 const express = require('express');
 const router = express.Router();
+const {publish} = require('../eventBus');
+const {sendSpendingRecordedNotification} = require('../notifClient');
 
 // in-memory store for transactions *temp*
 let transactions = [];
 let nextId = 1;
+
+// in-memory store for spending events *temp*
+let spendingEvents = [];
+let nextEventId = 1;
+
+// helper to publish spending events
+function publishSpendingEvent(transaction){
+    const event = {
+        id: nextEventId++,
+        type: 'SPENDING_RECORDED',
+        transactionId: transaction.id,
+        amount: transaction.amount,
+        category: transaction.category,
+        occurredAt: new Date().toISOString()
+    };
+
+    spendingEvents.push(event);
+
+    // publish to event bus
+    publish('SPENDING_RECORDED', event);
+
+    console.log('Spending event published:', event);
+
+    // notify notif-service (fire-and-forget)
+    sendSpendingRecordedNotification({
+        id: event.transactionId,
+        amount: event.amount,
+        category: event.category,
+        date: event.occurredAt,
+    });
+}
 
 /**
  * transaction shape {
@@ -21,6 +54,11 @@ router.get('/', (req, res) => {
     res.json(transactions);
 });
 
+// GET /api/transactions/events/spending
+router.get('/events/spending', (req, res) => {
+    res.json(spendingEvents);
+});
+
 // GET /api/transactions/:id
 router.get('/:id', (req, res) => {
     const id = parseInt(req.params.id, 10);
@@ -35,7 +73,7 @@ router.get('/:id', (req, res) => {
     res.json(txn);
 });
 
-// POST /api/transactions  -> create transaction (expense or income)
+// POST /api/transactions
 router.post('/', (req, res) => {
     const {type, amount, category, date, description} = req.body;
 
@@ -69,6 +107,11 @@ router.post('/', (req, res) => {
     };
 
     transactions.push(newTxn);
+
+    // publish spending event only for expenses
+    if (newTxn.type === 'expense'){
+        publishSpendingEvent(newTxn);
+    }
 
     res.status(201).json(newTxn);
 });
