@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const {subscribe} = require('../eventBus');
 
 // in-memory store for budgets *temp*
 let budgets = [];
@@ -119,6 +120,21 @@ router.patch('/:id/spent', (req, res) => {
     const remaining = budget.limit - budget.spent;
     const status = budget.spent > budget.limit ? 'over-budget':'within-budget';
     res.json({...budget, remaining, status});
+});
+
+// subscribe budget service to spending events
+subscribe('SPENDING_RECORDED', (event) => {
+    const {category, amount} = event;
+
+    // find budget for category
+    const budget = budgets.find((b) => b.category === category);
+
+    if (budget){
+        budget.spent += amount;
+        console.log(`Budget updated: category=${category}, amount added=${amount}`);
+    } else {
+        console.log(`No budget found for category=${category}.`);
+    }
 });
 
 module.exports = router;
