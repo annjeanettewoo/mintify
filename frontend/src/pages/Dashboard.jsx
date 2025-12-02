@@ -1,7 +1,82 @@
 // src/pages/Dashboard.jsx
+import { useEffect, useState } from "react";
 import logo from "../assets/mintify-logo.png";
+import {
+  fetchBudgets,
+  fetchTransactions,
+} from "../services/financeApi";
 
 function Dashboard({ onLogout }) {
+  const [budgets, setBudgets] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Load data from finance-service on mount
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [budgetsRes, transactionsRes] = await Promise.all([
+          fetchBudgets(),
+          fetchTransactions(),
+        ]);
+
+        setBudgets(budgetsRes);
+        setTransactions(transactionsRes);
+      } catch (err) {
+        console.error("Failed to load finance data:", err);
+        setError("Could not load data from finance-service.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  // ----- Derived values from transactions -----
+
+  // Only count expenses for “spent”
+  const expenseTransactions = transactions.filter(
+    (t) => t.type === "expense"
+  );
+
+  const totalSpent = expenseTransactions.reduce(
+    (sum, t) => sum + (t.amount || 0),
+    0
+  );
+
+  const totalTransactionsCount = transactions.length;
+
+  // Spending per category (for bar chart + cards)
+  const categories = ["Food", "Groceries", "Entertainment", "Travel", "Shopping"];
+
+  const amountsByCategory = categories.reduce((acc, cat) => {
+    const amount = expenseTransactions
+      .filter((t) => t.category === cat)
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+    acc[cat] = amount;
+    return acc;
+  }, {});
+
+  const maxCategoryAmount =
+    Math.max(
+      ...categories.map((cat) => amountsByCategory[cat] || 0),
+      1 // avoid divide by zero
+    );
+
+  const barWidth = (cat) => {
+    const amt = amountsByCategory[cat] || 0;
+    return `${Math.round((amt / maxCategoryAmount) * 100)}%`;
+  };
+
+  const fmt = (num) =>
+    typeof num === "number" ? num.toFixed(2) : "0.00";
+
   return (
     <div className="app">
       <div className="app-shell">
@@ -67,6 +142,17 @@ function Dashboard({ onLogout }) {
 
           {/* MAIN AREA */}
           <main className="main" id="dashboard">
+            {loading && (
+              <p className="muted" style={{ marginBottom: "1rem" }}>
+                Loading data from finance-service…
+              </p>
+            )}
+            {error && (
+              <p className="muted" style={{ color: "var(--danger)", marginBottom: "1rem" }}>
+                {error}
+              </p>
+            )}
+
             <section className="left-panel" id="spendings">
               <header className="panel-header">
                 <h1>Your spendings &amp; budgets</h1>
@@ -81,8 +167,10 @@ function Dashboard({ onLogout }) {
                 {/* Total spent / donut placeholder */}
                 <div className="donut-card">
                   <p className="muted-small">Total spent this month</p>
-                  <h2 className="big-amount">€ 2,340</h2>
-                  <p className="muted-small">Across 54 transactions</p>
+                  <h2 className="big-amount">€ {fmt(totalSpent)}</h2>
+                  <p className="muted-small">
+                    Across {totalTransactionsCount} transactions
+                  </p>
 
                   <div className="donut-placeholder">
                     Donut chart placeholder
@@ -117,10 +205,12 @@ function Dashboard({ onLogout }) {
                       <div className="bar-track">
                         <div
                           className="bar-fill food"
-                          style={{ width: "35%" }}
+                          style={{ width: barWidth("Food") }}
                         />
                       </div>
-                      <div className="bar-amount">€ 420</div>
+                      <div className="bar-amount">
+                        € {fmt(amountsByCategory["Food"] || 0)}
+                      </div>
                     </div>
 
                     <div className="bar-row">
@@ -128,10 +218,12 @@ function Dashboard({ onLogout }) {
                       <div className="bar-track">
                         <div
                           className="bar-fill groceries"
-                          style={{ width: "50%" }}
+                          style={{ width: barWidth("Groceries") }}
                         />
                       </div>
-                      <div className="bar-amount">€ 610</div>
+                      <div className="bar-amount">
+                        € {fmt(amountsByCategory["Groceries"] || 0)}
+                      </div>
                     </div>
 
                     <div className="bar-row">
@@ -139,10 +231,12 @@ function Dashboard({ onLogout }) {
                       <div className="bar-track">
                         <div
                           className="bar-fill entertainment"
-                          style={{ width: "15%" }}
+                          style={{ width: barWidth("Entertainment") }}
                         />
                       </div>
-                      <div className="bar-amount">€ 180</div>
+                      <div className="bar-amount">
+                        € {fmt(amountsByCategory["Entertainment"] || 0)}
+                      </div>
                     </div>
 
                     <div className="bar-row">
@@ -150,10 +244,12 @@ function Dashboard({ onLogout }) {
                       <div className="bar-track">
                         <div
                           className="bar-fill travel"
-                          style={{ width: "25%" }}
+                          style={{ width: barWidth("Travel") }}
                         />
                       </div>
-                      <div className="bar-amount">€ 320</div>
+                      <div className="bar-amount">
+                        € {fmt(amountsByCategory["Travel"] || 0)}
+                      </div>
                     </div>
 
                     <div className="bar-row">
@@ -161,10 +257,12 @@ function Dashboard({ onLogout }) {
                       <div className="bar-track">
                         <div
                           className="bar-fill shopping"
-                          style={{ width: "22%" }}
+                          style={{ width: barWidth("Shopping") }}
                         />
                       </div>
-                      <div className="bar-amount">€ 310</div>
+                      <div className="bar-amount">
+                        € {fmt(amountsByCategory["Shopping"] || 0)}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -174,37 +272,50 @@ function Dashboard({ onLogout }) {
               <div className="spending-cards">
                 <div className="spending-card star-card star-food">
                   <p className="card-label">Food</p>
-                  <h3>€ 420</h3>
+                  <h3>€ {fmt(amountsByCategory["Food"] || 0)}</h3>
                   <p className="muted-small">Dining out, coffee, snacks</p>
-                  <span className="delta-badge up">+2.3% vs last month</span>
+                  <span className="delta-badge up">
+                    {/* placeholder deltas for now */}
+                    +2.3% vs last month
+                  </span>
                 </div>
 
                 <div className="spending-card star-card star-groceries">
                   <p className="card-label">Groceries</p>
-                  <h3>€ 610</h3>
+                  <h3>€ {fmt(amountsByCategory["Groceries"] || 0)}</h3>
                   <p className="muted-small">Supermarket &amp; essentials</p>
-                  <span className="delta-badge down">-0.8% vs last month</span>
+                  <span className="delta-badge down">
+                    -0.8% vs last month
+                  </span>
                 </div>
 
                 <div className="spending-card star-card star-entertainment">
                   <p className="card-label">Entertainment</p>
-                  <h3>€ 180</h3>
-                  <p className="muted-small">Movies, subscriptions, events</p>
-                  <span className="delta-badge up">+4.1% vs last month</span>
+                  <h3>€ {fmt(amountsByCategory["Entertainment"] || 0)}</h3>
+                  <p className="muted-small">
+                    Movies, subscriptions, events
+                  </p>
+                  <span className="delta-badge up">
+                    +4.1% vs last month
+                  </span>
                 </div>
 
                 <div className="spending-card star-card star-travel">
                   <p className="card-label">Travel</p>
-                  <h3>€ 320</h3>
+                  <h3>€ {fmt(amountsByCategory["Travel"] || 0)}</h3>
                   <p className="muted-small">Flights, trains, transport</p>
-                  <span className="delta-badge up">+1.2% vs last month</span>
+                  <span className="delta-badge up">
+                    +1.2% vs last month
+                  </span>
                 </div>
 
                 <div className="spending-card star-card star-shopping">
                   <p className="card-label">Shopping</p>
-                  <h3>€ 310</h3>
+                  <h3>€ {fmt(amountsByCategory["Shopping"] || 0)}</h3>
                   <p className="muted-small">Clothes, gadgets, extras</p>
-                  <span className="delta-badge down">-3.0% vs last month</span>
+                  <span className="delta-badge down">
+                    -3.0% vs last month
+                  </span>
                 </div>
               </div>
             </section>
