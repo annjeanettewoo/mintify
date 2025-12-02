@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mintify
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/annjeanettewoo/mintify.git
+    targetRevision: main
+    path: deploy              # Argo will look at all Helm subcharts here
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mintify        # where all your services already live
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    # no automated: section → manual sync = SAFE
