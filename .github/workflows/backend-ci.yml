@@ -8,6 +8,7 @@ on:
     paths:
       - 'auth-service/**'
       - 'finance-service/**'
+      - 'notif-service/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches:
@@ -16,6 +17,7 @@ on:
     paths:
       - 'auth-service/**'
       - 'finance-service/**'
+      - 'notif-service/**'
       - '.github/workflows/backend-ci.yml'
 
 jobs:
@@ -24,7 +26,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [auth-service, finance-service]
+        service: [auth-service, finance-service, notif-service]
 
     defaults:
       run:
