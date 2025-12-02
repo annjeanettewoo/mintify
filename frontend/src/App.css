@@ -235,6 +235,35 @@ body {
   font-size: 0.8rem;
 }
 
+.add-transaction-btn {
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--golden-goose);   /* same yellow as old donut */
+  color: var(--brown-moss);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(110, 75, 52, 0.16);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.add-transaction-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(110, 75, 52, 0.2);
+}
+
+.add-transaction-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(110, 75, 52, 0.15);
+}
+
+
 .legend-row {
   margin-top: 1rem;
   display: flex;
@@ -333,7 +362,7 @@ body {
   color: var(--brown-moss);
 }
 
-/* ========== CATEGORY CARDS – STAR SHAPES ========== */
+/* ========== CATEGORY CARDS – ROUNDED RECTANGLES ========== */
 
 .spending-cards {
   display: grid;
@@ -354,45 +383,20 @@ body {
   }
 }
 
-/* whole card is a star / flower blob */
-.star-card {
-  position: relative;
-  padding: 1.6rem 1.4rem 1.4rem;
-  min-height: 170px;
-  box-shadow: 0 12px 26px rgba(110, 75, 52, 0.18);
+/* Base card layout */
+.spending-card {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  color: #3b2a23;
-
-  /* spiky star shape */
-  clip-path: polygon(
-    50% 0%,
-    65% 10%,
-    82% 5%,
-    86% 22%,
-    100% 30%,
-    90% 45%,
-    100% 60%,
-    88% 70%,
-    92% 88%,
-    74% 84%,
-    60% 100%,
-    50% 86%,
-    40% 100%,
-    26% 84%,
-    8% 88%,
-    12% 70%,
-    0% 60%,
-    10% 45%,
-    0% 30%,
-    14% 22%,
-    18% 5%,
-    35% 10%
-  );
+  align-items: flex-start;
+  text-align: left;
+  padding: 1.6rem 1.4rem 1.4rem;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 26px rgba(110, 75, 52, 0.18);
+  position: relative;
 }
 
-/* inner text */
+/* Keep existing text styles */
 .card-label {
   font-size: 0.8rem;
   letter-spacing: 0.14em;
@@ -405,6 +409,7 @@ body {
   margin-bottom: 0.25rem;
 }
 
+/* Delta badge stays in bottom-right corner */
 .delta-badge {
   position: absolute;
   right: 1rem;
@@ -424,49 +429,37 @@ body {
   color: #b91c1c;
 }
 
-/* ====== COLOURS (roughly like your palette) ====== */
+/* ====== CATEGORY COLOURS (MATCH LEGEND + BARS) ====== */
 
-/* Food – warm red/orange */
-.star-food {
+/* Food – same as bar-fill.food (#E16A5A) */
+.category-card--food {
   background: #e16a5a;
-  color: #fff;
+  color: #ffffff;
 }
 
-/* Groceries – yellow-green */
-.star-groceries {
-  background: #d5d845;
+/* Groceries – same yellow as legend/bars */
+.category-card--groceries {
+  background: var(--golden-goose);
+  color: var(--brown-moss);
 }
 
-/* Entertainment – bubblegum pink */
-.star-entertainment {
-  background: #f69ac5;
+/* Entertainment – same mint blue as bar-fill.entertainment */
+.category-card--entertainment {
+  background: var(--mint-glow);
+  color: var(--brown-moss);
 }
 
-/* Travel – blue */
-.star-travel {
-  background: #a4c3df;
+/* Travel – same green as legend dot / bar */
+.category-card--travel {
+  background: #dfe9c8;
+  color: var(--brown-moss);
 }
 
-/* Shopping – lilac */
-.star-shopping {
-  background: #e6bdf4;
+/* Shopping – same lilac as legend dot / bar */
+.category-card--shopping {
+  background: #ead7f4;
+  color: var(--brown-moss);
 }
-/* Center all text inside spiky cards */
-.spending-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;   /* vertical centering */
-  align-items: center;        /* horizontal centering */
-  text-align: center;
-  padding: 3rem 2rem;         /* extra spacing so text doesn’t touch spikes */
-}
-
-/* Optional: center the delta badge at bottom */
-.spending-card .delta-badge {
-  position: static;
-  margin-top: 1rem;
-}
-
 
 /* ========================================================= */
 /* =============== LOGIN PAGE STYLING ====================== */
