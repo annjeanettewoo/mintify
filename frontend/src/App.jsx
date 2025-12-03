@@ -3,16 +3,29 @@ import { useState } from "react";
 import "./App.css";
 import logo from "./assets/mintify-logo.png";
 import Dashboard from "./pages/Dashboard.jsx";
+import { getPublicMessage } from "./services/authApi";
 
 /* ---------- LOGIN PAGE ---------- */
 function Login({ onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSuccess(); // go to dashboard for now
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    // simple “ping” to auth-service to prove backend connection
+    const data = await getPublicMessage();
+    console.log("Auth-service response:", data);
+
+    // you can add simple check here if needed
+    onSuccess(); // go to dashboard
+  } catch (err) {
+    console.error(err);
+    alert("Login failed: cannot reach auth-service");
+  }
+};
+
 
   return (
     <div className="auth-wrapper">
