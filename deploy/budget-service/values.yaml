@@ -1,9 +1,9 @@
 app:
-  name: finance-service
+  name: budget-service
 
 image:
-  repository: junteak/mintify-finance-service
-  tag: "amd64-v1"
+  repository: junteak/mintify-budget-service
+  tag: "amd64-v2"
   pullPolicy: Always
 
 service:
@@ -13,5 +13,5 @@ service:
 ingress:
   enabled: true
   className: traefik
-  host: finance.ltu-m7011e-9.se
+  host: budget.ltu-m7011e-9.se
   path: /

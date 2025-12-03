@@ -10,5 +10,9 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - auth.ltu-m7011e-9.se
+    - budget.ltu-m7011e-9.se
     - finance.ltu-m7011e-9.se
     - mintify.ltu-m7011e-9.se
+    - notif.ltu-m7011e-9.se
+    - transact.ltu-m7011e-9.se
+    # add any other Mintify hosts here too

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  labels:
+    app: {{ .Values.app.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          env:
+            - name: PORT
+              value: "4002"
+
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mintify-shared-secret
+                  key: MONGODB_URI
+
+            - name: MONGODB_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mintify-shared-secret
+                  key: MONGODB_DB_NAME
+
+            - name: RABBITMQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mintify-shared-secret
+                  key: RABBITMQ_URL
+
+            - name: RABBITMQ_EXCHANGE
+              valueFrom:
+                secretKeyRef:
+                  name: mintify-shared-secret
+                  key: RABBITMQ_EXCHANGE
+
+            # Queue name is NOT a secret (it's safe in plain text)
+            - name: RABBITMQ_BUDGET_QUEUE
+              value: "mintify.budget"
+
+          ports:
+            - containerPort: {{ .Values.service.port }}

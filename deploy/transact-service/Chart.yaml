@@ -1,0 +1,6 @@
+apiVersion: v2
+name: transact-service
+description: Mintify transact-service
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
