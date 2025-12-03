@@ -3,7 +3,7 @@ app:
 
 image:
   repository: junteak/mintify-frontend
-  tag: "amd64-v1"
+  tag: "amd64-v4"          # <-- change to the new tag
   pullPolicy: Always
 
 service:

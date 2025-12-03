@@ -1,28 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.app.name }}
+  name: {{ include "notif-service.fullname" . }}
   labels:
-    app: {{ .Values.app.name }}
+    {{- include "notif-service.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.app.name }}
+      {{- include "notif-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Values.app.name }}
+        {{- include "notif-service.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Values.app.name }}
+        - name: notif-service
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+
           env:
             - name: PORT
-              value: "4002"
+              value: "{{ .Values.service.port }}"
 
+            # ---- MongoDB ----
             - name: MONGODB_URI
               valueFrom:
                 secretKeyRef:
@@ -35,6 +41,7 @@ spec:
                   name: mintify-shared-secret
                   key: MONGODB_DB_NAME
 
+            # ---- RabbitMQ ----
             - name: RABBITMQ_URL
               valueFrom:
                 secretKeyRef:
@@ -47,9 +54,5 @@ spec:
                   name: mintify-shared-secret
                   key: RABBITMQ_EXCHANGE
 
-            # Queue name is NOT a secret (it's safe in plain text)
-            - name: RABBITMQ_BUDGET_QUEUE
-              value: "mintify.budget"
-
-          ports:
-            - containerPort: {{ .Values.service.port }}
+            - name: RABBITMQ_QUEUE
+              value: "{{ .Values.env.rabbitmqQueue }}"

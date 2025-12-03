@@ -1,0 +1,20 @@
+app:
+  name: notif-service
+
+image:
+  repository: junteak/mintify-notif-service
+  tag: "amd64-v2"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 4004
+
+ingress:
+  enabled: true
+  className: traefik
+  host: notif.ltu-m7011e-9.se
+  path: /
+
+env:
+  rabbitmqQueue: "mintify.notif"
