@@ -80,6 +80,7 @@ body {
 }
 
 .nav-item {
+  background: transparent;
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -637,4 +638,29 @@ body {
 .auth-left-subtitle,
 .auth-perks {
   display: none !important;
+}
+
+/* Remove black outline on sidebar buttons */
+.nav-item {
+  outline: none;
+  border: none;
+}
+
+.nav-item:focus,
+.nav-item:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-item:active {
+  outline: none !important;
+}
+
+button {
+  outline: none;
+}
+
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
