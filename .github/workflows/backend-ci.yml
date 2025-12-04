@@ -6,7 +6,6 @@ on:
       - main
       - junteak
     paths:
-      - 'services/auth-service/**'
       - 'services/budget-service/**'
       - 'services/transact-service/**'
       - 'services/notif-service/**'
@@ -16,7 +15,6 @@ on:
       - main
       - junteak
     paths:
-      - 'services/auth-service/**'
       - 'services/budget-service/**'
       - 'services/transact-service/**'
       - 'services/notif-service/**'
@@ -29,18 +27,12 @@ jobs:
     strategy:
       matrix:
         service:
-          - name: auth-service
-            path: services/auth-service
-            runTests: false     # not ready yet
           - name: budget-service
             path: services/budget-service
-            runTests: true
           - name: transact-service
             path: services/transact-service
-            runTests: true
           - name: notif-service
             path: services/notif-service
-            runTests: true
 
     name: Backend – ${{ matrix.service.name }}
 
@@ -62,14 +54,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Only run Jest tests for services that have them
       - name: Run tests
-        if: matrix.service.runTests == true
         env:
           CI: true
         run: npm test
-
-      # For services without tests yet, just do a no-op smoke step
-      - name: Smoke check (no tests yet)
-        if: matrix.service.runTests == false
-        run: echo "No tests defined for ${{ matrix.service.name }} yet"
