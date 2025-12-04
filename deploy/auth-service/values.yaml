@@ -3,7 +3,7 @@ app:
 
 image:
   repository: junteak/mintify-auth-service
-  tag: "amd64-v1"
+  tag: "amd64-v2"
   pullPolicy: Always
 
 service:
