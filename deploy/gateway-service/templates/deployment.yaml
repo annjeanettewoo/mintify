@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  labels:
+    app: {{ .Values.app.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          env:
+            - name: PORT
+              value: "4000"
+
+            # Internal cluster URLs for the backend services
+            - name: BUDGET_SERVICE_URL
+              value: "http://budget-service:4002"
+
+            - name: TRANSACT_SERVICE_URL
+              value: "http://transact-service:4003"
+
+            - name: NOTIF_SERVICE_URL
+              value: "http://notif-service:4004"
+
+          ports:
+            - containerPort: {{ .Values.service.port }}
