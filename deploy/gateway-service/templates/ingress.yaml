@@ -3,19 +3,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .Values.app.name }}-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   tls:
     - hosts:
-        - auth.ltu-m7011e-9.se
-        - finance.ltu-m7011e-9.se
-        - budget.ltu-m7011e-9.se
-        - notif.ltu-m7011e-9.se
-        - transact.ltu-m7011e-9.se
-        - mintify.ltu-m7011e-9.se
-        - gateway.ltu-m7011e-9.se
+        - {{ .Values.ingress.host }}
       secretName: mintify-tls
   rules:
     - host: {{ .Values.ingress.host }}

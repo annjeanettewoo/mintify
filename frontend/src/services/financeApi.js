@@ -1,15 +1,12 @@
 // frontend/src/services/financeApi.js
 
-// Budgets live on budget-service (port 4002)
-const BUDGET_BASE_URL =
-  import.meta.env.VITE_FINANCE_BASE_URL || "http://localhost:4002";
+// All app APIs (budgets + transactions) now go via the gateway-service
+// In dev:  http://localhost:4000
+// In prod: https://gateway.ltu-m7011e-9.se  (see .env files)
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
-// Transactions + spending events live on transact-service (port 4003)
-const TRANSACT_BASE_URL =
-  import.meta.env.VITE_TRANSACT_BASE_URL || "http://localhost:4003";
-
-console.log("BUDGET_BASE_URL in frontend:", BUDGET_BASE_URL);
-console.log("TRANSACT_BASE_URL in frontend:", TRANSACT_BASE_URL);
+console.log("API_BASE_URL (gateway) in frontend:", API_BASE_URL);
 
 // Helper to handle 200 + 304 safely
 async function safeJson(res, defaultValue) {
@@ -24,14 +21,14 @@ async function safeJson(res, defaultValue) {
   }
 
   const text = await res.text().catch(() => "");
-  console.error("finance-service error:", res.status, text);
+  console.error("Gateway/finance error:", res.status, text);
   throw new Error(`Finance API error: ${res.status}`);
 }
 
-// ---------- BUDGETS (budget-service) ----------
+// ---------- BUDGETS (via gateway → budget-service) ----------
 
 export async function fetchBudgets() {
-  const res = await fetch(`${BUDGET_BASE_URL}/api/budgets`, {
+  const res = await fetch(`${API_BASE_URL}/api/budgets`, {
     method: "GET",
     headers: {
       "Cache-Control": "no-cache",
@@ -42,7 +39,7 @@ export async function fetchBudgets() {
 }
 
 export async function createBudget({ category, limit }) {
-  const res = await fetch(`${BUDGET_BASE_URL}/api/budgets`, {
+  const res = await fetch(`${API_BASE_URL}/api/budgets`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ category, limit: Number(limit) }),
@@ -52,7 +49,7 @@ export async function createBudget({ category, limit }) {
 }
 
 export async function updateBudget(id, { category, limit }) {
-  const res = await fetch(`${BUDGET_BASE_URL}/api/budgets/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/api/budgets/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ category, limit: Number(limit) }),
@@ -62,7 +59,7 @@ export async function updateBudget(id, { category, limit }) {
 }
 
 export async function deleteBudget(id) {
-  const res = await fetch(`${BUDGET_BASE_URL}/api/budgets/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/api/budgets/${id}`, {
     method: "DELETE",
   });
   if (!res.ok && res.status !== 204)
@@ -70,7 +67,7 @@ export async function deleteBudget(id) {
 }
 
 export async function patchBudgetSpent(id, amount) {
-  const res = await fetch(`${BUDGET_BASE_URL}/api/budgets/${id}/spent`, {
+  const res = await fetch(`${API_BASE_URL}/api/budgets/${id}/spent`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amount: Number(amount) }),
@@ -79,10 +76,10 @@ export async function patchBudgetSpent(id, amount) {
   return res.json();
 }
 
-// ---------- TRANSACTIONS (transact-service) ----------
+// ---------- TRANSACTIONS (via gateway → transact-service) ----------
 
 export async function fetchTransactions() {
-  const res = await fetch(`${TRANSACT_BASE_URL}/api/transactions`, {
+  const res = await fetch(`${API_BASE_URL}/api/transactions`, {
     method: "GET",
     headers: {
       "Cache-Control": "no-cache",
@@ -94,7 +91,7 @@ export async function fetchTransactions() {
 
 export async function createTransaction(payload) {
   // payload: { type, amount, category, date?, description? }
-  const res = await fetch(`${TRANSACT_BASE_URL}/api/transactions`, {
+  const res = await fetch(`${API_BASE_URL}/api/transactions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -107,7 +104,7 @@ export async function createTransaction(payload) {
 }
 
 export async function deleteTransaction(id) {
-  const res = await fetch(`${TRANSACT_BASE_URL}/api/transactions/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
     method: "DELETE",
   });
   if (!res.ok && res.status !== 204)
@@ -116,7 +113,7 @@ export async function deleteTransaction(id) {
 
 export async function fetchSpendingEvents() {
   const res = await fetch(
-    `${TRANSACT_BASE_URL}/api/transactions/events/spending`,
+    `${API_BASE_URL}/api/transactions/events/spending`,
     {
       method: "GET",
       headers: {

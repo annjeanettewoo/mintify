@@ -1,0 +1,8 @@
+apiVersion: v2
+name: gateway-service
+description: Mintify gateway service Helm chart
+
+type: application
+
+version: 0.1.0
+appVersion: "1.0.0"
