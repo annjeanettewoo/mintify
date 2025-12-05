@@ -2,13 +2,15 @@
 import { useEffect, useState } from "react";
 import logo from "../assets/mintify-logo.png";
 import Spendings from "./Spendings";
+import Budgets from "./Budgets";
+
 import {
   fetchBudgets,
   fetchTransactions,
   createTransaction,
 } from "../services/financeApi";
 
-function Dashboard({ onLogout }) {
+function Dashboard({ onLogout, userName }) {
   // Which main view is shown: "dashboard" or "spendings"
   const [activeView, setActiveView] = useState("dashboard");
 
@@ -162,11 +164,19 @@ function Dashboard({ onLogout }) {
               <span>Spendings</span>
             </button>
 
-            {/* The rest are just placeholders for now */}
-            <button type="button" className="nav-item">
+            {/* BUDGETS TAB */}
+            <button
+              type="button"
+              className={`nav-item ${
+                activeView === "budgets" ? "active" : ""
+              }`}
+              onClick={() => setActiveView("budgets")}
+            >
               <span className="nav-dot" />
               <span>Budgets</span>
             </button>
+
+            {/* The rest are just placeholders for now */}
             <button type="button" className="nav-item">
               <span className="nav-dot" />
               <span>Calendar</span>
@@ -202,7 +212,11 @@ function Dashboard({ onLogout }) {
 
             <div className="topbar-right">
               <button className="pill-btn">This month</button>
-              <button className="round-btn">👤</button>
+              <div className="name-tag-widget">
+                <div className="name-tag-top">HELLO, I AM</div>
+                <div className="name-tag-box"> </div>
+                  {(userName || "Guest").toUpperCase()}
+              </div>
             </div>
           </header>
 
@@ -525,6 +539,9 @@ function Dashboard({ onLogout }) {
 
             {/* ----- VIEW: SPENDINGS PAGE (NevBank-style) ----- */}
             {activeView === "spendings" && <Spendings />}
+            {/* ----- VIEW: BUDGETS PAGE ----- */}
+            {activeView === "budgets" && <Budgets budgets={budgets} loading={loading} error={error} />}
+
           </main>
         </div>
       </div>

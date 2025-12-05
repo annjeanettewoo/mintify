@@ -20,3 +20,26 @@ export async function getPublicMessage() {
 
   return res.json(); // /public returns JSON
 }
+
+// --- SIGNUP FUNCTION ---
+export async function signupUser(payload) {
+  const url = `${AUTH_BASE_URL}/signup`;
+  console.log("Calling signup:", url, payload);
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    credentials: "include", 
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    console.error("Signup error:", res.status, errText);
+    throw new Error(errText || "Signup failed.");
+  }
+
+  return res.json();
+}
