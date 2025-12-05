@@ -9,6 +9,7 @@ on:
       - 'services/budget-service/**'
       - 'services/transact-service/**'
       - 'services/notif-service/**'
+      - 'services/gateway-service/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches:
@@ -18,6 +19,7 @@ on:
       - 'services/budget-service/**'
       - 'services/transact-service/**'
       - 'services/notif-service/**'
+      - 'services/gateway-service/**'
       - '.github/workflows/backend-ci.yml'
 
 jobs:
@@ -33,6 +35,8 @@ jobs:
             path: services/transact-service
           - name: notif-service
             path: services/notif-service
+          - name: gateway-service
+            path: services/gateway-service
 
     name: Backend – ${{ matrix.service.name }}
 
