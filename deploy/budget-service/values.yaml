@@ -1,15 +1,12 @@
 app:
   name: budget-service
-
 image:
   repository: junteak/mintify-budget-service
-  tag: "amd64-v2"
+  tag: "amd64-01f168c"
   pullPolicy: Always
-
 service:
   type: ClusterIP
   port: 4002
-
 ingress:
   enabled: true
   className: traefik
