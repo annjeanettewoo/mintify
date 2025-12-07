@@ -1,9 +1,7 @@
+# deploy/budget-service/Chart.yaml
 apiVersion: v2
 name: budget-service
-description: A Helm chart for Kubernetes
-
+description: Helm chart for Mintify budget-service
 type: application
-
 version: 0.1.0
-
-appVersion: "1.16.0"
+appVersion: "0.2.0"
