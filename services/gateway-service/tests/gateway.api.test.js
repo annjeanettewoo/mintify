@@ -42,3 +42,5 @@ describe('gateway-service', () => {
     expect(res.headers['x-proxied-to']).toBe('http://localhost:4004');
   });
 });
+
+// test: new CD interval
