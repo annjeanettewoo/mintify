@@ -3,7 +3,7 @@ app:
 
 image:
   repository: junteak/mintify-notif-service
-  tag: "amd64-v2"
+  tag: "amd64-amd64-01f168c"
   pullPolicy: Always
 
 service:
