@@ -2,7 +2,7 @@ app:
   name: gateway-service
 image:
   repository: junteak/mintify-gateway-service # <-- change if needed
-  tag: "amd64-12d7f3c" # <-- match your built tag
+  tag: "amd64-7448df1" # <-- match your built tag
   pullPolicy: Always
 service:
   type: ClusterIP
