@@ -2,7 +2,7 @@ app:
   name: budget-service
 image:
   repository: junteak/mintify-budget-service
-  tag: "amd64-3aaa927"
+  tag: "amd64-4637382"
   pullPolicy: Always
 service:
   type: ClusterIP
