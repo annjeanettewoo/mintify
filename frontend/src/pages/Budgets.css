@@ -1,4 +1,4 @@
-/* src/pages/Budgets.css */
+/* src/pages/Budgets.css */ 
 /* Budgets page using the Mintify palette from App.css */
 
 .budgets-view {
@@ -117,6 +117,31 @@
   color: inherit;
 }
 
+/* CTA summary card */
+.summary-card-cta {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.create-budget-btn {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--deep-cherry);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-start;
+  box-shadow: 0 6px 14px rgba(110, 75, 52, 0.25);
+}
+
+.create-budget-btn:hover {
+  filter: brightness(0.95);
+}
+
 /* ========== MAIN GRID ========== */
 
 .budgets-main-grid {
@@ -200,7 +225,7 @@
   color: var(--text-main);
 }
 
-/* ========== DONUT CHART ========== */
+/* ========== DONUT CHART (dynamic conic gradient) ========== */
 
 .donut-wrapper {
   display: flex;
@@ -209,34 +234,29 @@
   margin-top: 8px;
 }
 
-/* Yellow (income), green (savings), BLUE (bills) */
 .donut {
-  width: 90px;
-  height: 90px;
+  position: relative;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
-  background: conic-gradient(
-    var(--golden-goose) 0deg 130deg,
-    #dfe9c8 130deg 230deg,
-    var(--mint-glow) 230deg 360deg
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* real colours are set inline from Budgets.jsx via backgroundImage */
+  background: #f0e1c0;
 }
 
 .donut-hole {
-  width: 48px;
-  height: 48px;
+  position: absolute;
+  top: 22%;
+  left: 22%;
+  right: 22%;
+  bottom: 22%;
   border-radius: 50%;
-  background: #fffdf8;
+  background: #fffdf8; /* same as card background */
 }
 
-/* Put legend items in a row, not stacked */
 .donut-legend {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
   font-size: 12px;
   color: var(--text-main);
 }
@@ -253,14 +273,7 @@
   border-radius: 999px;
 }
 
-/* Budget = yellow, Actual = red (matches bars) */
-.legend-budget {
-  background: var(--golden-goose);
-}
-
-.legend-actual {
-  background: #e16a5a;
-}
+/* (old legend-budget / legend-actual classes no longer needed, but harmless to keep if used elsewhere) */
 
 /* ========== HIGHEST EXPENSES ========== */
 
