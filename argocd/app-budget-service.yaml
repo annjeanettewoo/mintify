@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mintify-budget-service
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/annjeanettewoo/mintify.git
+    targetRevision: junteak
+    path: deploy/budget-service
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mintify
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
