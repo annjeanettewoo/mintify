@@ -2,7 +2,7 @@ app:
   name: frontend
 image:
   repository: junteak/mintify-frontend
-  tag: "amd64-01f168c" # <-- change to the new tag
+  tag: "amd64-3aaa927" # <-- change to the new tag
   pullPolicy: Always
 service:
   type: ClusterIP
