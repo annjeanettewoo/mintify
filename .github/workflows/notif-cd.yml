@@ -60,4 +60,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add deploy/notif-service/values.yaml
           git commit -m "chore: bump notif image to $TAG [skip ci]" || echo "No changes to commit"
-          git push
+          git pull --rebase origin junteak || true
+          git push origin HEAD:junteak || true
