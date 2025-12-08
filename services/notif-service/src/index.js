@@ -6,6 +6,7 @@ const amqp = require('amqplib');
 const { connectDB } = require('./db');
 const Notification = require('./models/Notification');
 const { createApp } = require('./app');
+const { spendingEventsConsumedTotal } = require('./metrics');
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL;
 const EXCHANGE_NAME = process.env.RABBITMQ_EXCHANGE || 'mintify.events';
@@ -80,6 +81,9 @@ async function startRabbitConsumer() {
 
           await notification.save();
           broadcastNotification(notification);
+          
+          // for metrics
+          spendingEventsConsumedTotal.inc();
         }
 
         channel.ack(msg);

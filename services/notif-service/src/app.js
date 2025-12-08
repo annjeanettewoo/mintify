@@ -4,6 +4,7 @@ const cors = require('cors');
 const tempUser = require('./middleware/tempUser');
 const notifRoutes = require('./routes/notifRoutes');
 const Notification = require('./models/Notification');
+const { metricsMiddleware, metricsHandler } = require('./metrics');
 
 // broadcastNotification is injected so we can stub it in tests
 function createApp({ broadcastNotification = () => {} } = {}) {
@@ -12,6 +13,12 @@ function createApp({ broadcastNotification = () => {} } = {}) {
   app.use(cors());
   app.use(express.json());
   app.use(tempUser);
+
+  // Metrics middleware
+  app.use(metricsMiddleware);
+
+  // Metrics endpoint
+  app.get('/metrics', metricsHandler);
 
   // Health check
   app.get('/health', (req, res) => {
