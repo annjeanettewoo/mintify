@@ -1,20 +1,16 @@
 app:
   name: transact-service
-
 image:
   repository: junteak/mintify-transact-service
-  tag: "amd64-v1"
+  tag: "amd64-4637382"
   pullPolicy: Always
-
 service:
   type: ClusterIP
   port: 4003
-
 ingress:
   enabled: true
   className: traefik
-  host: transact.ltu-m7011e-9.se   
+  host: transact.ltu-m7011e-9.se
   path: /
-
 env:
   rabbitmqQueue: "mintify.transact"

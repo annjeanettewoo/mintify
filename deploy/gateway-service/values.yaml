@@ -1,17 +1,14 @@
 app:
   name: gateway-service
-
 image:
-  repository: junteak/mintify-gateway-service  # <-- change if needed
-  tag: "amd64-v1"                              # <-- match your built tag
+  repository: junteak/mintify-gateway-service # <-- change if needed
+  tag: "amd64-4637382" # <-- match your built tag
   pullPolicy: Always
-
 service:
   type: ClusterIP
   port: 4000
-
 ingress:
   enabled: true
   className: traefik
-  host: gateway.ltu-m7011e-9.se   # you can change this if you want
+  host: gateway.ltu-m7011e-9.se # you can change this if you want
   path: /

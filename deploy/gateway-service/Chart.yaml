@@ -1,8 +1,7 @@
+# deploy/gateway-service/Chart.yaml
 apiVersion: v2
 name: gateway-service
-description: Mintify gateway service Helm chart
-
+description: Helm chart for Mintify gateway-service
 type: application
-
 version: 0.1.0
-appVersion: "1.0.0"
+appVersion: "0.1.0"
