@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import logo from "../assets/mintify-logo.png";
 import Spendings from "./Spendings";
 import Budgets from "./Budgets";
-import Calendar from "./Calendar";
+import Calendar from "./Calendar/Calendar.jsx";
 
 import DashboardOverview from "./dashboard/DashboardOverview";
 import CategoryPage from "./dashboard/CategoryPage";
@@ -69,8 +69,8 @@ function Dashboard({ onLogout, userName }) {
       setBudgets(budgetsRes);
       setTransactions(transactionsRes);
     } catch (err) {
-      console.error("Failed to load finance data:", err);
-      setError("Could not load data from finance-service.");
+      console.error("Failed to transaction data:", err);
+      setError("Could not load data from transact-service.");
     } finally {
       setLoading(false);
     }
@@ -385,17 +385,15 @@ function Dashboard({ onLogout, userName }) {
             {activeView === "calendar" && (
               <section className="calendar-page">
                 <header className="panel-header">
-                  <h1>Spending scrapbook</h1>
+                  <h1>Spendings</h1>
                   <p className="muted">
-                    Tap a day to log a picture and how much you spent. Total
-                    logged here: € {fmt(totalCalendarLogged)}
+                    Tap a day to see how much you spent. Total
+                    spent : € {fmt(totalSpent)}
                   </p>
                 </header>
 
                 <div className="calendar-wrapper">
-                  <Calendar
-                    entries={calendarEntries}
-                    onEntriesChange={setCalendarEntries}
+                  <Calendar transactions={transactions} 
                   />
                 </div>
               </section>
