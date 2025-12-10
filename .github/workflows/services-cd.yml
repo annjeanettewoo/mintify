@@ -146,6 +146,9 @@ jobs:
           push: true
           tags: |
             junteak/mintify-frontend:${{ steps.vars.outputs.TAG }}
+          build-args: |
+            VITE_AUTH_BASE_URL=https://auth.ltu-m7011e-9.se
+            VITE_API_BASE_URL=https://gateway.ltu-m7011e-9.se
 
       - name: Update frontend values.yaml
         if: steps.changes.outputs.frontend == 'true'
