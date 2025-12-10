@@ -244,3 +244,21 @@
   font-size: 0.9rem;
   color: #9a9ab3;
 }
+
+.tx-actions-col {
+  text-align: right;
+}
+
+.tx-action-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.tx-action-btn.danger {
+  background: rgba(179, 61, 54, 0.1);
+  color: #b33d36;
+}
