@@ -1,0 +1,273 @@
+/* ---- Calendar container ---- */
+
+.calendar {
+  background: #f6efe4;
+  border-radius: 24px;
+  padding: 1.5rem 1.75rem 2rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* header with month + arrows */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.calendar-title {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #6b4b3a;
+}
+
+.calendar-nav-btn {
+  border: none;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.4rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #eed6c1;
+  color: #6b4b3a;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.calendar-nav-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  background: #e4c5ac;
+}
+
+/* ---- Grid ---- */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+/* day-of-week header cells */
+.calendar-dow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: #a07d69;
+  padding-bottom: 0.25rem;
+}
+
+/* base cell */
+.calendar-cell {
+  position: relative;
+  min-height: 90px;
+  border-radius: 18px;
+  border: 1px solid rgba(153, 121, 95, 0.16);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  transition: box-shadow 0.15s ease, transform 0.1s ease,
+    border-color 0.15s ease, background 0.15s ease;
+}
+
+.calendar-cell.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.calendar-cell:not(.empty):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  border-color: rgba(153, 121, 95, 0.4);
+  background: #fff7f0;
+}
+
+/* today highlight */
+.calendar-cell.today {
+  border: 1.5px solid #c65043;
+}
+
+.calendar-cell.has-entry {
+  border-style: dashed;
+}
+
+/* date number */
+.calendar-day-number {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #5b3c2b;
+  margin-bottom: 0.25rem;
+}
+
+/* ---- Transaction chips inside cells ---- */
+
+.calendar-chips {
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.calendar-chip {
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  gap: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-chip-label {
+  font-weight: 500;
+}
+
+.calendar-chip-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Match your dashboard category colours (tweak as needed) */
+.calendar-chip--food {
+  background: #d85b4f; /* red card */
+  color: #fff;
+}
+
+.calendar-chip--groceries {
+  background: #f4d35e; /* yellow card */
+  color: #4a3b00;
+}
+
+.calendar-chip--entertainment {
+  background: #8ab6ff; /* blue card */
+  color: #10253f;
+}
+
+.calendar-chip--travel {
+  background: #c7e8b3; /* green card */
+  color: #234018;
+}
+
+.calendar-chip--shopping {
+  background: #e8d5ff; /* lilac card */
+  color: #3b2356;
+}
+
+/* fallback */
+.calendar-chip--other {
+  background: #dddddd;
+  color: #333333;
+}
+
+.calendar-chip--more {
+  background: transparent;
+  box-shadow: none;
+  border: 1px dashed rgba(116, 64, 60, 0.5);
+  color: #74403c;
+  font-style: italic;
+}
+
+/* ---- Modal ---- */
+
+.calendar-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(51, 32, 28, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.calendar-modal {
+  background: #fdf5ec;
+  border-radius: 24px;
+  padding: 1.5rem 1.75rem;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+.calendar-modal h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+  color: #5b3c2b;
+}
+
+.calendar-modal-list {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0 0 1.25rem;
+}
+
+.modal-tx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.modal-tx-main {
+  color: #4c3a31;
+}
+
+.modal-tx-amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.modal-tx-amount.expense {
+  color: #c65043;
+}
+
+.modal-tx-amount.income {
+  color: #3b7b4f;
+}
+
+/* modal buttons reuse your theme colours */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-btn.primary {
+  border: none;
+  border-radius: 999px;
+  padding: 0.4rem 1.1rem;
+  background: #c65043; /* deep cherry-ish */
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: transform 0.1s ease, box-shadow 0.1s ease,
+    background 0.1s ease;
+}
+
+.modal-btn.primary:hover {
+  background: #ad4135;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
