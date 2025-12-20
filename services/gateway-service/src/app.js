@@ -1,7 +1,8 @@
-// src/app.js
+// services/gateway-service/src/app.js
 const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const { metricsMiddleware, metricsHandler } = require('./metrics');
 
 const BUDGET_SERVICE_URL =
   process.env.BUDGET_SERVICE_URL || 'http://localhost:4002';
@@ -27,6 +28,22 @@ const app = express();
 
 app.use(cors());
 
+// 🔹 Metrics middleware (for all HTTP requests)
+app.use(metricsMiddleware);
+
+// 🔹 Expose /metrics for Prometheus
+app.get('/metrics', metricsHandler);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'gateway-service',
+  });
+});
+
+// ---------- PROXIES ----------
+
 // Proxy for budget-service
 const budgetProxy = createProxyMiddleware({
   target: BUDGET_SERVICE_URL,
@@ -50,14 +67,6 @@ const notifProxy = createProxyMiddleware({
   pathRewrite: preservePath,
   ws: true,
   onProxyRes: logProxy('notif'),
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'gateway-service',
-  });
 });
 
 // Mount proxies
