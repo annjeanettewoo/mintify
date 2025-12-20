@@ -7,6 +7,9 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Spendings from "./pages/Spendings.jsx";
 import Signup from "./pages/Signup.jsx";
 import Budgets from "./pages/Budgets.jsx";
+import Calendar from "./pages/Calendar/Calendar.jsx";
+import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
+
 
 import { getPublicMessage } from "./services/authApi";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
@@ -175,6 +178,11 @@ function App() {
         element={
           isLoggedIn ? <Budgets /> : <Navigate to="/" replace />
         }
+      />
+
+      <Route 
+        path="/calendar" 
+        element={<CalendarPage />}
       />
 
       {/* Fallback: anything else -> home */}
