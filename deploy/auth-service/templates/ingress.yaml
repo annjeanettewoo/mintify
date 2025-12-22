@@ -11,10 +11,11 @@ spec:
     - hosts:
         - auth.ltu-m7011e-9.se
         - finance.ltu-m7011e-9.se
-        - mintify.ltu-m7011e-9.se
         - budget.ltu-m7011e-9.se
         - notif.ltu-m7011e-9.se
         - transact.ltu-m7011e-9.se
+        - mintify.ltu-m7011e-9.se
+        - gateway.ltu-m7011e-9.se
       secretName: mintify-tls
   rules:
     - host: {{ .Values.ingress.host }}

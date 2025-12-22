@@ -1,0 +1,345 @@
+/* src/pages/Budgets.css */ 
+/* Budgets page using the Mintify palette from App.css */
+
+.budgets-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 8px 24px;
+  background: transparent;
+}
+
+/* ========== HEADER ========== */
+
+.budgets-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.period-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budgets-title {
+  font-size: 22px;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.budgets-subtitle {
+  font-size: 13px;
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+
+.period-pill {
+  background: var(--deep-cherry);
+  color: white;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+}
+
+.budgets-status {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.budgets-status.error {
+  color: var(--deep-cherry);
+}
+
+/* ========== SUMMARY CARDS (TOP ROW) ========== */
+
+/* Use flex so cards sit in a row and wrap nicely on small screens */
+.budgets-summary-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.summary-card {
+  flex: 1 1 180px;
+  border-radius: var(--radius-lg);
+  padding: 12px 18px;
+  background: #fffdf8;           /* neutral card, same as main cards */
+  border: 1px solid #f2cdb2;
+  box-shadow: 0 10px 24px rgba(110, 75, 52, 0.16);
+  color: var(--text-main);
+}
+
+/* 1) CURRENT BALANCE — neutral, no pink */
+.budgets-summary-row .summary-card:nth-child(1) {
+  background: #fffdf8;
+}
+
+/* 2) INCOME — same yellow as groceries / add transaction button */
+.budgets-summary-row .summary-card:nth-child(2) {
+  background: var(--golden-goose);
+  color: var(--brown-moss);
+}
+
+/* 3) EXPENSES — same red as FOOD card */
+.budgets-summary-row .summary-card:nth-child(3) {
+  background: #e16a5a;
+  color: #ffffff;
+}
+
+/* 4) BILLS BUDGET — BLUE, same as mint-glow / entertainment card */
+.budgets-summary-row .summary-card:nth-child(4) {
+  background: var(--mint-glow);
+  color: var(--brown-moss);
+}
+
+/* Make labels readable on red card */
+.budgets-summary-row .summary-card:nth-child(3) .summary-label,
+.budgets-summary-row .summary-card:nth-child(3) .summary-value {
+  color: #ffffff;
+}
+
+.summary-label {
+  font-size: 12px;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: inherit;
+}
+
+.summary-value {
+  font-size: 20px;
+  margin: 0;
+  color: inherit;
+}
+
+/* CTA summary card */
+.summary-card-cta {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.create-budget-btn {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--deep-cherry);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: flex-start;
+  box-shadow: 0 6px 14px rgba(110, 75, 52, 0.25);
+}
+
+.create-budget-btn:hover {
+  filter: brightness(0.95);
+}
+
+/* ========== MAIN GRID ========== */
+
+.budgets-main-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1.1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 14px;
+}
+
+.panel {
+  background: #fffdf8;
+  border: 1px solid #f2cdb2;
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: 0 10px 24px rgba(110, 75, 52, 0.16);
+}
+
+.panel-tall {
+  grid-row: span 2;
+}
+
+.panel-wide {
+  grid-column: span 2;
+}
+
+.panel-title {
+  font-size: 14px;
+  margin: 0 0 2px;
+  color: var(--text-main);
+}
+
+.panel-subtitle {
+  font-size: 11px;
+  margin: 0 0 10px;
+  color: var(--text-muted);
+}
+
+/* ========== CASH FLOW SUMMARY (BARS) ========== */
+
+.cf-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 60px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cf-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.cf-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #f3e0cd;
+  overflow: hidden;
+}
+
+.cf-bar {
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* Match dashboard category colours */
+.cf-bar.income {
+  background: var(--golden-goose); /* groceries yellow */
+}
+
+.cf-bar.expense {
+  background: #e16a5a;            /* food red */
+}
+
+.cf-bar.savings {
+  background: #dfe9c8;            /* travel green */
+}
+
+.cf-value {
+  font-size: 12px;
+  text-align: right;
+  color: var(--text-main);
+}
+
+/* ========== DONUT CHART (dynamic conic gradient) ========== */
+
+.donut-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.donut {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  /* real colours are set inline from Budgets.jsx via backgroundImage */
+  background: #f0e1c0;
+}
+
+.donut-hole {
+  position: absolute;
+  top: 22%;
+  left: 22%;
+  right: 22%;
+  bottom: 22%;
+  border-radius: 50%;
+  background: #fffdf8; /* same as card background */
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+/* (old legend-budget / legend-actual classes no longer needed, but harmless to keep if used elsewhere) */
+
+/* ========== HIGHEST EXPENSES ========== */
+
+.highest-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.highest-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.highest-amount {
+  font-weight: 600;
+}
+
+.muted-row {
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ========== BUDGET VS ACTUAL TABLE ========== */
+
+.bva-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.bva-table th,
+.bva-table td {
+  padding: 6px 8px;
+}
+
+.bva-table thead {
+  background: #f8e4cf;
+}
+
+.bva-table tbody tr:nth-child(even) {
+  background: #fff2e4;
+}
+
+.bva-table .over {
+  color: var(--deep-cherry);
+}
+
+.bva-table .under {
+  color: #2f7f4f;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 1024px) {
+  .budgets-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-wide,
+  .panel-tall {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}

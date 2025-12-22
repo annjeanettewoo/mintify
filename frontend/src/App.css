@@ -236,25 +236,34 @@ body {
   font-size: 0.8rem;
 }
 
-.add-transaction-btn {
+.add-transaction-btn,
+.add-income-btn {
   width: 100%;
-  margin-top: 0.9rem;
-  padding: 0.9rem 1.2rem;
-  border-radius: var(--radius-pill);
+  border-radius: 999px;
   border: none;
-  background: var(--golden-goose);   /* same yellow as old donut */
-  color: var(--brown-moss);
+  padding: 14px 24px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 15px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(110, 75, 52, 0.16);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.add-transaction-btn:hover {
+/* Transaction = red */
+.add-transaction-btn {
+  background: #e16a5a;         /* same as Food card */
+  color: #ffffff;
+}
+
+/* Income = yellow */
+.add-income-btn {
+  margin-top: 10px;
+  background: var(--golden-goose);  /* your yellow */
+  color: var(--brown-moss);
+}
+
+.add-transaction-btn:hover,
+.add-income-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 12px rgba(110, 75, 52, 0.2);
 }
@@ -663,4 +672,255 @@ button {
 button:focus {
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Name Tag (Stitched Badge Style) */
+.name-tag-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #c62828;                      /* deep embroidered red */
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;                       /* rectangular like patch */
+  border: 3px solid #a01212;                /* darker red border */
+  font-family: "Arial Black", sans-serif;   /* bold blocky text like embroidery */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);  /* slight depth */
+}
+
+/* Top embroidered text */
+.name-tag-top {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+/* White name box */
+.name-tag-box {
+  background: #ffffff;
+  color: #333;
+  padding: 4px 10px;
+  min-width: 90px;
+  text-align: center;
+  border-radius: 4px;
+  border: 2px solid #ddd;                   /* stitched border look */
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: "Arial Black", sans-serif;
+  text-transform: uppercase;
+}
+
+/* OPTIONAL: Add slight stitched texture */
+.name-tag-widget {
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(0,0,0,0.08) 100%);
+}
+
+.topbar-right {
+  align-items: flex-start !important;
+}
+
+.name-tag-widget {
+  transform: scale(0.9);      /* shrink size */
+  transform-origin: right top; /* shrink toward top-right */
+  margin-top: 4px;             /* adjust vertical alignment */
+}
+
+.calendar {
+  background: #fff6e9;
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  font-size: 0.9rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.calendar-title {
+  flex: 1;
+  text-align: center;
+}
+
+.calendar-nav-btn {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-dow {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #8b6f5b;
+  margin-bottom: 2px;
+}
+
+.calendar-cell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #fdf3e4;
+  overflow: hidden;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  transition: transform 0.08s, box-shadow 0.08s, border 0.08s;
+}
+
+.calendar-cell.empty {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-cell.today {
+  border: 1px dashed #b33d36;
+}
+
+.calendar-cell.has-entry {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+}
+
+.calendar-cell:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-day-number {
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.calendar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.calendar-amount {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  background: rgba(179, 61, 54, 0.9);
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 4px;
+  border-radius: 999px;
+}
+
+/* Modal */
+
+.calendar-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.calendar-modal {
+  background: #fffaf2;
+  border-radius: 18px;
+  padding: 18px 20px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.calendar-modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.modal-label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.modal-label input[type="number"],
+.modal-label input[type="file"] {
+  margin-top: 4px;
+  width: 100%;
+}
+
+.modal-preview-wrapper {
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
+.modal-preview-image {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.modal-btn {
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.modal-btn.secondary {
+  background: #eee1d1;
+}
+
+.modal-btn.primary {
+  background: #b33d36;
+  color: white;
+}
+
+.calendar-total {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.back-btn {
+  background: var(--brown-moss);        /* same as logout */
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #4a362b; /* slightly darker brown for hover */
 }

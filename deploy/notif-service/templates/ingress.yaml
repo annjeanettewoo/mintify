@@ -2,9 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "notif-service.fullname" . }}
-  labels:
-    {{- include "notif-service.labels" . | nindent 4 }}
+  name: {{ .Values.app.name }}-ingress
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -23,7 +21,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "notif-service.fullname" . }}
+                name: {{ .Values.app.name }}
                 port:
                   number: {{ .Values.service.port }}
 {{- end }}

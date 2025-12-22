@@ -2,27 +2,39 @@
 import { useState } from "react";
 import "./App.css";
 import logo from "./assets/mintify-logo.png";
+
 import Dashboard from "./pages/Dashboard.jsx";
-import Spendings from "./pages/Spendings";
+import Spendings from "./pages/Spendings.jsx";
+import Signup from "./pages/Signup.jsx";
+import Budgets from "./pages/Budgets.jsx";
+import Calendar from "./pages/Calendar/Calendar.jsx";
+import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
+
+
 import { getPublicMessage } from "./services/authApi";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 /* ---------- LOGIN PAGE ---------- */
 function Login({ onSuccess }) {
+  const [name, setName] = useState("");        // 💡 NEW
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const data = await getPublicMessage();
-    console.log("Auth-service response:", data);
-    onSuccess(); // go to dashboard
-  } catch (err) {
-    console.error(err);
-    alert("Login failed: cannot reach auth-service");
-  }
-};
+    try {
+      const data = await getPublicMessage();
+      console.log("Auth-service response:", data);
+
+      // Send the name back up to App
+      onSuccess(name || "Guest");
+    } catch (err) {
+      console.error(err);
+      alert("Login failed: cannot reach auth-service");
+    }
+  };
 
   return (
     <div className="auth-wrapper">
@@ -41,6 +53,21 @@ function Login({ onSuccess }) {
             </p>
 
             <form className="auth-form" onSubmit={handleSubmit}>
+              {/* 👇 NEW name field */}
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="name">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  className="auth-input"
+                  type="text"
+                  placeholder="Annj"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+
               <div className="auth-field">
                 <label className="auth-label" htmlFor="email">
                   Email
@@ -97,9 +124,7 @@ function Login({ onSuccess }) {
               <button
                 type="button"
                 className="auth-link-btn"
-                onClick={() =>
-                  alert("Sign-up page coming soon ✨")
-                }
+                onClick={() => navigate("/signup")}
               >
                 Sign up
               </button>
@@ -111,15 +136,59 @@ function Login({ onSuccess }) {
   );
 }
 
-/* ---------- ROOT APP: switch between login and dashboard ---------- */
+/* ---------- ROOT APP: routes + login state ---------- */
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("Guest");  // 💡 NEW
 
-  if (!isLoggedIn) {
-    return <Login onSuccess={() => setIsLoggedIn(true)} />;
-  }
+  return (
+    <Routes>
+      {/* Root: show login or dashboard depending on state */}
+      <Route
+        path="/"
+        element={
+          isLoggedIn ? (
+            <Dashboard
+              onLogout={() => setIsLoggedIn(false)}
+              userName={userName}                      // 👈 pass name down
+            />
+          ) : (
+            <Login
+              onSuccess={(nameFromLogin) => {
+                setUserName(nameFromLogin || "Guest");  // store name
+                setIsLoggedIn(true);
+              }}
+            />
+          )
+        }
+      />
 
-  return <Dashboard onLogout={() => setIsLoggedIn(false)} />;
+      {/* Signup page */}
+      <Route path="/signup" element={<Signup />} />
+
+      {/* Spendings only when logged in */}
+      <Route
+        path="/spendings"
+        element={
+          isLoggedIn ? <Spendings /> : <Navigate to="/" replace />
+        }
+      />
+      <Route
+        path="/budgets"
+        element={
+          isLoggedIn ? <Budgets /> : <Navigate to="/" replace />
+        }
+      />
+
+      <Route 
+        path="/calendar" 
+        element={<CalendarPage />}
+      />
+
+      {/* Fallback: anything else -> home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
 export default App;

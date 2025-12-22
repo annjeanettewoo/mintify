@@ -1,6 +1,10 @@
 // src/pages/Spendings.jsx
 import { useEffect, useMemo, useState } from "react";
-import { fetchTransactions } from "../services/financeApi";
+import {
+  fetchTransactions,
+  updateTransaction,
+  deleteTransaction,
+} from "../services/financeApi";
 import "./Spendings.css";
 
 function Spendings() {
@@ -10,22 +14,37 @@ function Spendings() {
 
   const [periodLabel] = useState("This month"); // you can add a real filter later
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchTransactions();
-        setTransactions(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to load transactions:", err);
-        setError("Could not load transactions");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // edit modal state
+  const [editingTx, setEditingTx] = useState(null);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState(null);
 
-    load();
+  const categoriesOptions = [
+    "Food",
+    "Groceries",
+    "Entertainment",
+    "Travel",
+    "Shopping",
+    "Other",
+  ];
+
+  // ---------- load transactions ----------
+  const loadTransactions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchTransactions();
+      setTransactions(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load transactions:", err);
+      setError("Could not load transactions");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTransactions();
   }, []);
 
   // --- Derived values ---
@@ -79,6 +98,72 @@ function Spendings() {
       barWidth: (value / max) * 100,
     }));
   }, [totals.byCategory]);
+
+  // ---------- edit & delete handlers ----------
+
+  const startEdit = (tx) => {
+    setEditError(null);
+    setEditingTx({
+      ...tx,
+      amount: Number(tx.amount) || 0,
+      date: tx.date ? tx.date.slice(0, 10) : "",
+      type: tx.type || "expense",
+      category: tx.category || "Other",
+      description: tx.description || "",
+    });
+  };
+
+  const handleEditFieldChange = (field, value) => {
+    setEditingTx((prev) => (prev ? { ...prev, [field]: value } : prev));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingTx) return;
+
+    const id = editingTx._id || editingTx.id;
+    if (!id) {
+      setEditError("Missing transaction id");
+      return;
+    }
+
+    try {
+      setEditSaving(true);
+      setEditError(null);
+
+      await updateTransaction(id, {
+        type: editingTx.type,
+        amount: editingTx.amount,
+        category: editingTx.category,
+        date: editingTx.date,
+        description: editingTx.description,
+      });
+
+      await loadTransactions();
+      setEditingTx(null);
+    } catch (err) {
+      console.error("Failed to update transaction:", err);
+      setEditError("Could not update transaction. Please try again.");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const handleDelete = async (tx) => {
+    const id = tx._id || tx.id;
+    if (!id) return;
+
+    const ok = window.confirm("Delete this transaction?");
+    if (!ok) return;
+
+    try {
+      await deleteTransaction(id);
+      await loadTransactions();
+    } catch (err) {
+      console.error("Failed to delete transaction:", err);
+      setError("Could not delete transaction");
+    }
+  };
 
   return (
     <div className="spendings-page">
@@ -159,6 +244,7 @@ function Spendings() {
                     <th>Description</th>
                     <th>Category</th>
                     <th className="tx-amount-col">Amount</th>
+                    <th className="tx-actions-col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -175,6 +261,22 @@ function Spendings() {
                         <span className="tx-amount">
                           € {(Number(tx.amount) || 0).toFixed(2)}
                         </span>
+                      </td>
+                      <td className="tx-actions-col">
+                        <button
+                          type="button"
+                          className="tx-action-btn"
+                          onClick={() => startEdit(tx)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="tx-action-btn danger"
+                          onClick={() => handleDelete(tx)}
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -213,6 +315,114 @@ function Spendings() {
               </div>
             )}
           </section>
+        </div>
+      )}
+
+      {/* ---------- EDIT MODAL ---------- */}
+      {editingTx && (
+        <div className="modal-backdrop">
+          <div className="modal-card">
+            <h3>Edit transaction</h3>
+            {editError && (
+              <p className="spendings-status error" style={{ marginTop: "0.4rem" }}>
+                {editError}
+              </p>
+            )}
+
+            <form className="tx-form" onSubmit={handleEditSubmit}>
+              <div className="tx-field">
+                <label>
+                  <span>Amount (€)</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingTx.amount}
+                    onChange={(e) =>
+                      handleEditFieldChange("amount", e.target.value)
+                    }
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="tx-field">
+                <label>
+                  <span>Type</span>
+                  <select
+                    value={editingTx.type}
+                    onChange={(e) =>
+                      handleEditFieldChange("type", e.target.value)
+                    }
+                  >
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="tx-field">
+                <label>
+                  <span>Category</span>
+                  <select
+                    value={editingTx.category}
+                    onChange={(e) =>
+                      handleEditFieldChange("category", e.target.value)
+                    }
+                  >
+                    {categoriesOptions.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="tx-field">
+                <label>
+                  <span>Date</span>
+                  <input
+                    type="date"
+                    value={editingTx.date}
+                    onChange={(e) =>
+                      handleEditFieldChange("date", e.target.value)
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="tx-field">
+                <label>
+                  <span>Description</span>
+                  <textarea
+                    rows="2"
+                    value={editingTx.description}
+                    onChange={(e) =>
+                      handleEditFieldChange("description", e.target.value)
+                    }
+                    placeholder="Optional note"
+                  />
+                </label>
+              </div>
+
+              <div className="tx-actions">
+                <button
+                  type="button"
+                  className="tx-cancel-btn"
+                  onClick={() => setEditingTx(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="tx-save-btn"
+                  disabled={editSaving}
+                >
+                  {editSaving ? "Saving..." : "Save changes"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

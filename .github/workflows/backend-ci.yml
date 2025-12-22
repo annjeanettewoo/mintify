@@ -6,18 +6,20 @@ on:
       - main
       - junteak
     paths:
-      - 'auth-service/**'
-      - 'finance-service/**'
-      - 'notif-service/**'
+      - 'services/budget-service/**'
+      - 'services/transact-service/**'
+      - 'services/notif-service/**'
+      - 'services/gateway-service/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches:
       - main
       - junteak
     paths:
-      - 'auth-service/**'
-      - 'finance-service/**'
-      - 'notif-service/**'
+      - 'services/budget-service/**'
+      - 'services/transact-service/**'
+      - 'services/notif-service/**'
+      - 'services/gateway-service/**'
       - '.github/workflows/backend-ci.yml'
 
 jobs:
@@ -26,11 +28,21 @@ jobs:
 
     strategy:
       matrix:
-        service: [auth-service, finance-service, notif-service]
+        service:
+          - name: budget-service
+            path: services/budget-service
+          - name: transact-service
+            path: services/transact-service
+          - name: notif-service
+            path: services/notif-service
+          - name: gateway-service
+            path: services/gateway-service
+
+    name: Backend – ${{ matrix.service.name }}
 
     defaults:
       run:
-        working-directory: ${{ matrix.service }}
+        working-directory: ${{ matrix.service.path }}
 
     steps:
       - name: Checkout repository
@@ -41,7 +53,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ${{ matrix.service }}/package-lock.json
+          cache-dependency-path: ${{ matrix.service.path }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
