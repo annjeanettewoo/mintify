@@ -13,15 +13,11 @@ root.render(<div style={{ padding: 16 }}>Loading…</div>);
 
 keycloak
   .init({
-    onLoad: "login-required", // force Keycloak login before app loads
+    onLoad: "check-sso",     // allow public pages like /signup
     pkceMethod: "S256",
     checkLoginIframe: false,
   })
-  .then((authenticated) => {
-    if (!authenticated) {
-      return keycloak.login();
-    }
-
+  .then(() => {
     root.render(
       <React.StrictMode>
         <BrowserRouter>
@@ -35,6 +31,10 @@ keycloak
     root.render(
       <div style={{ padding: 16 }}>
         Keycloak init failed. Check console + Keycloak settings.
+      </div>
+    );
+  });
+
       </div>
     );
   });
