@@ -2,7 +2,7 @@ app:
   name: notif-service
 image:
   repository: junteak/mintify-notif-service
-  tag: "amd64-d05343c"
+  tag: "amd64-6645659"
   pullPolicy: Always
 service:
   type: ClusterIP
