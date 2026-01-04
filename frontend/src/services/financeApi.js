@@ -3,138 +3,90 @@
 // All app APIs (budgets + transactions) now go via the gateway-service
 // In dev:  http://localhost:4000
 // In prod: https://gateway.ltu-m7011e-9.se  (see .env files)
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+// frontend/src/services/financeApi.js
+import keycloak from "./keycloak";
 
-console.log("API_BASE_URL (gateway) in frontend:", API_BASE_URL);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
-// Helper to handle 200 + 304 safely
-async function safeJson(res, defaultValue) {
-  // Treat 200–299 as OK
-  if (res.ok) {
-    return res.json();
+async function safeJson(res, fallback) {
+  if (!res) return fallback;
+
+  // If not authorized, return fallback (so UI doesn't crash)
+  if (res.status === 401 || res.status === 403) return fallback;
+
+  try {
+    const text = await res.text();
+    if (!text) return fallback;
+    return JSON.parse(text);
+  } catch {
+    return fallback;
   }
-
-  // Treat 304 (Not Modified) as “no change / empty list”
-  if (res.status === 304) {
-    return defaultValue;
-  }
-
-  const text = await res.text().catch(() => "");
-  console.error("Gateway/finance error:", res.status, text);
-  throw new Error(`Finance API error: ${res.status}`);
 }
 
-// ---------- BUDGETS (via gateway → budget-service) ----------
+async function authFetch(path, init = {}) {
+  const url = `${API_BASE_URL}${path}`;
+  const headers = new Headers(init.headers || {});
+
+  // Only attach token when logged in
+  if (keycloak.authenticated) {
+    try {
+      await keycloak.updateToken(30);
+    } catch {
+      // token refresh failed; proceed without token (will 401)
+    }
+
+    if (keycloak.token) {
+      headers.set("Authorization", `Bearer ${keycloak.token}`);
+    }
+  }
+
+  return fetch(url, { ...init, headers });
+}
+
+// ===== API functions =====
+
+export async function fetchSummary() {
+  const res = await authFetch("/api/summary", {
+    method: "GET",
+    headers: { "Cache-Control": "no-cache" },
+    cache: "no-store",
+  });
+  return safeJson(res, {});
+}
+
+export async function fetchAdvice() {
+  const res = await authFetch("/api/advice", {
+    method: "GET",
+    headers: { "Cache-Control": "no-cache" },
+    cache: "no-store",
+  });
+  return safeJson(res, {});
+}
+
+export async function fetchNotifications() {
+  const res = await authFetch("/api/notifications", {
+    method: "GET",
+    headers: { "Cache-Control": "no-cache" },
+    cache: "no-store",
+  });
+  return safeJson(res, []);
+}
 
 export async function fetchBudgets() {
-  const res = await fetch(`${API_BASE_URL}/api/budgets`, {
+  const res = await authFetch("/api/budgets", {
     method: "GET",
-    headers: {
-      "Cache-Control": "no-cache",
-    },
+    headers: { "Cache-Control": "no-cache" },
     cache: "no-store",
   });
-  return safeJson(res, []); // default: empty array
+  return safeJson(res, []);
 }
-
-export async function createBudget({ category, limit }) {
-  const res = await fetch(`${API_BASE_URL}/api/budgets`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ category, limit: Number(limit) }),
-  });
-  if (!res.ok) throw new Error("Failed to create budget");
-  return res.json();
-}
-
-export async function updateBudget(id, { category, limit }) {
-  const res = await fetch(`${API_BASE_URL}/api/budgets/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ category, limit: Number(limit) }),
-  });
-  if (!res.ok) throw new Error("Failed to update budget");
-  return res.json();
-}
-
-export async function deleteBudget(id) {
-  const res = await fetch(`${API_BASE_URL}/api/budgets/${id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok && res.status !== 204)
-    throw new Error("Failed to delete budget");
-}
-
-export async function patchBudgetSpent(id, amount) {
-  const res = await fetch(`${API_BASE_URL}/api/budgets/${id}/spent`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount: Number(amount) }),
-  });
-  if (!res.ok) throw new Error("Failed to update budget spent");
-  return res.json();
-}
-
-// ---------- TRANSACTIONS (via gateway → transact-service) ----------
 
 export async function fetchTransactions() {
-  const res = await fetch(`${API_BASE_URL}/api/transactions`, {
+  const res = await authFetch("/api/transactions", {
     method: "GET",
-    headers: {
-      "Cache-Control": "no-cache",
-    },
+    headers: { "Cache-Control": "no-cache" },
     cache: "no-store",
   });
-  return safeJson(res, []); // default: empty array
+  return safeJson(res, []);
 }
 
-export async function createTransaction(payload) {
-  // payload: { type, amount, category, date?, description? }
-  const res = await fetch(`${API_BASE_URL}/api/transactions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...payload,
-      amount: Number(payload.amount),
-    }),
-  });
-  if (!res.ok) throw new Error("Failed to create transaction");
-  return res.json();
-}
-
-// 👇 NEW: update transaction
-export async function updateTransaction(id, payload) {
-  const res = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...payload,
-      amount: Number(payload.amount),
-    }),
-  });
-  if (!res.ok) throw new Error("Failed to update transaction");
-  return res.json();
-}
-
-export async function deleteTransaction(id) {
-  const res = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok && res.status !== 204)
-    throw new Error("Failed to delete transaction");
-}
-
-export async function fetchSpendingEvents() {
-  const res = await fetch(
-    `${API_BASE_URL}/api/transactions/events/spending`,
-    {
-      method: "GET",
-      headers: {
-        "Cache-Control": "no-cache",
-      },
-      cache: "no-store",
-    }
-  );
-  return safeJson(res, []); // default: empty array
-}
