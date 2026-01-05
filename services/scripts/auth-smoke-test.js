@@ -61,7 +61,13 @@ async function expectStatus(name, fn, expected) {
 
 async function main() {
   console.log("=== Mintify Auth Smoke Test ===");
-  console.log({ KEYCLOAK_BASE, REALM, CLIENT_ID, USERNAME, GATEWAY_BASE });
+  console.log({
+    KEYCLOAK_BASE,
+    REALM,
+    CLIENT_ID,
+    USERNAME,
+    GATEWAY_BASE,
+  });
 
   const token = await getToken();
   ok("Got access token.");
@@ -69,7 +75,10 @@ async function main() {
   // 1) Gateway should reject without token
   await expectStatus(
     "Gateway /api/transactions without token.",
-    () => axios.get(`${GATEWAY_BASE}/api/transactions`, { validateStatus: () => true }),
+    () =>
+      axios.get(`${GATEWAY_BASE}/api/transactions`, {
+        validateStatus: () => true,
+      }),
     401
   );
 
@@ -109,19 +118,28 @@ async function main() {
   // 3) Downstream direct calls should fail now (missing user identity)
   await expectStatus(
     "Direct budget without x-user-id.",
-    () => axios.get(`${DIRECT_BUDGET}/api/budgets`, { validateStatus: () => true }),
+    () =>
+      axios.get(`${DIRECT_BUDGET}/api/budgets`, {
+        validateStatus: () => true,
+      }),
     401
   );
 
   await expectStatus(
     "Direct transact without x-user-id.",
-    () => axios.get(`${DIRECT_TRANSACT}/api/transactions`, { validateStatus: () => true }),
+    () =>
+      axios.get(`${DIRECT_TRANSACT}/api/transactions`, {
+        validateStatus: () => true,
+      }),
     401
   );
 
   await expectStatus(
     "Direct notif without x-user-id.",
-    () => axios.get(`${DIRECT_NOTIF}/api/notifications`, { validateStatus: () => true }),
+    () =>
+      axios.get(`${DIRECT_NOTIF}/api/notifications`, {
+        validateStatus: () => true,
+      }),
     401
   );
 
@@ -130,6 +148,14 @@ async function main() {
 }
 
 main().catch((e) => {
-  bad(e.message);
+  bad(e?.message || "Unknown error");
+
+  if (e?.response) {
+    console.error("status:", e.response.status);
+    console.error("data:", e.response.data);
+  } else {
+    console.error(e);
+  }
+
   process.exitCode = 1;
 });
