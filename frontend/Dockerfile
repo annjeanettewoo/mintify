@@ -12,12 +12,18 @@ COPY . .
 
 # ---------- Build-time environment variables for Vite ----------
 # These will be passed from GitHub Actions via --build-arg
+ARG VITE_KEYCLOAK_URL
+ARG VITE_KEYCLOAK_REALM
+ARG VITE_KEYCLOAK_CLIENT_ID
 ARG VITE_AUTH_BASE_URL
 ARG VITE_API_BASE_URL
 
 # Make them available to Vite during the build
-ENV VITE_AUTH_BASE_URL=$VITE_AUTH_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_KEYCLOAK_URL=$VITE_KEYCLOAK_URL \
+    VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM \
+    VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID \
+    VITE_AUTH_BASE_URL=$VITE_AUTH_BASE_URL \
+    VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # Build the production bundle
 RUN npm run build
@@ -32,5 +38,3 @@ COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
-
-# to update budgets and calendar
