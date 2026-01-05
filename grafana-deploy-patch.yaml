@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  template:
+    spec:
+      containers:
+        - name: grafana
+          env:
+            - name: GF_SERVER_ENABLE_GZIP
+              value: "true"
+            - name: GF_SERVER_ROOT_URL
+              value: "https://grafana.ltu-m7011e-9.se"

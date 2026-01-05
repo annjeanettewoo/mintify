@@ -109,6 +109,10 @@
   cursor: pointer;
 }
 
+.signup-left .btn-secondary {
+  margin-left: 12px;
+}
+
 /* Help text */
 .signup-footer {
   margin-top: 32px;
