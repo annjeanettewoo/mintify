@@ -1,5 +1,5 @@
 // frontend/src/App.jsx
-// trigger CD
+// trigger CD pt2
 
 import "./App.css";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
