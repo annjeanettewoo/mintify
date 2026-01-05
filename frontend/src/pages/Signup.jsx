@@ -1,8 +1,24 @@
 // src/pages/Signup.jsx
 import "./Signup.css";
 import heroImg from "../assets/signup.jpg";
+import { useLocation } from "react-router-dom";
 
 function Signup({ onLogin, onRegister }) {
+  const location = useLocation();
+
+  // If they were redirected here, RequireAuth stored the original path in state.from
+  const from = location.state?.from || "/";
+
+  const handleLogin = () => {
+    // Keycloak will redirect back to your app after login.
+    // Set redirectUri to the page the user originally wanted.
+    onLogin?.({ redirectUri: `${window.location.origin}${from}` });
+  };
+
+  const handleRegister = () => {
+    onRegister?.({ redirectUri: `${window.location.origin}${from}` });
+  };
+
   return (
     <div className="signup-page">
       <div className="signup-card">
@@ -21,7 +37,7 @@ function Signup({ onLogin, onRegister }) {
             type="button"
             className="btn-primary"
             style={{ marginTop: 16 }}
-            onClick={onRegister}
+            onClick={handleRegister}
           >
             Create Account
           </button>
@@ -30,7 +46,7 @@ function Signup({ onLogin, onRegister }) {
             type="button"
             className="btn-secondary signin-btn"
             style={{ marginTop: 10 }}
-            onClick={onLogin}
+            onClick={handleLogin}
           >
             Sign in
           </button>
@@ -49,7 +65,8 @@ function Signup({ onLogin, onRegister }) {
 
           <div className="signup-hero-text">
             <h2>
-              The simplest way to manage your finances so you dont feel like youre drowning
+              The simplest way to manage your finances so you dont feel like
+              youre drowning
             </h2>
           </div>
         </div>

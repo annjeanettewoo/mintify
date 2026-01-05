@@ -1,5 +1,7 @@
 // src/pages/Dashboard.jsx
 import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+
 import logo from "../assets/mintify-logo.png";
 import Spendings from "./Spendings";
 import Budgets from "./Budgets";
@@ -20,6 +22,8 @@ import {
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function Dashboard({ onLogout, userName }) {
+  const navigate = useNavigate();
+
   // "dashboard" | "spendings" | "budgets" | "calendar" | "category"
   const [activeView, setActiveView] = useState("dashboard");
 
@@ -274,9 +278,7 @@ function Dashboard({ onLogout, userName }) {
 
             <button
               type="button"
-              className={`nav-item ${
-                activeView === "spendings" ? "active" : ""
-              }`}
+              className={`nav-item ${activeView === "spendings" ? "active" : ""}`}
               onClick={() => setActiveView("spendings")}
             >
               <span className="nav-dot" />
@@ -285,9 +287,7 @@ function Dashboard({ onLogout, userName }) {
 
             <button
               type="button"
-              className={`nav-item ${
-                activeView === "budgets" ? "active" : ""
-              }`}
+              className={`nav-item ${activeView === "budgets" ? "active" : ""}`}
               onClick={() => setActiveView("budgets")}
             >
               <span className="nav-dot" />
@@ -296,9 +296,7 @@ function Dashboard({ onLogout, userName }) {
 
             <button
               type="button"
-              className={`nav-item ${
-                activeView === "calendar" ? "active" : ""
-              }`}
+              className={`nav-item ${activeView === "calendar" ? "active" : ""}`}
               onClick={() => setActiveView("calendar")}
             >
               <span className="nav-dot" />
@@ -306,10 +304,18 @@ function Dashboard({ onLogout, userName }) {
             </button>
 
             <p className="sidebar-section-label">TOOLS</p>
-            <button type="button" className="nav-item">
+
+            {/* ✅ FIXED: Reports button navigates to SpendingReport page */}
+            <button
+              type="button"
+              className="nav-item"
+              onClick={() => navigate("/report/spending")}
+            >
               <span className="nav-dot" />
               <span>Reports</span>
             </button>
+
+            {/* (kept same styling as your other nav items) */}
             <button type="button" className="nav-item">
               <span className="nav-dot" />
               <span>Settings</span>
@@ -358,6 +364,7 @@ function Dashboard({ onLogout, userName }) {
                 onAddTransactionClick={openExpenseModal}
                 onAddIncomeClick={openIncomeModal}
                 onCategoryClick={openCategoryPage}
+                onViewReports={() => navigate("/report/spending")}
               />
             )}
 
@@ -387,14 +394,13 @@ function Dashboard({ onLogout, userName }) {
                 <header className="panel-header">
                   <h1>Spendings</h1>
                   <p className="muted">
-                    Tap a day to see how much you spent. Total
-                    spent : € {fmt(totalSpent)}
+                    Tap a day to see how much you spent. Total spent : €{" "}
+                    {fmt(totalSpent)}
                   </p>
                 </header>
 
                 <div className="calendar-wrapper">
-                  <Calendar transactions={transactions} 
-                  />
+                  <Calendar transactions={transactions} />
                 </div>
               </section>
             )}

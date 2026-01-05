@@ -10,6 +10,9 @@ import Budgets from "./pages/Budgets.jsx";
 import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
 import Signup from "./pages/Signup.jsx";
 
+// ✅ add this import
+import SpendingReport from "./pages/spendingReport.jsx";
+
 import keycloak from "./services/keycloak";
 
 // Small wrapper to protect routes
@@ -24,33 +27,31 @@ function RequireAuth({ children }) {
 }
 
 export default function App() {
-  const token = keycloak?.tokenParsed || {};
+  const tokenParsed = keycloak?.tokenParsed || {};
   const userName =
-    token.preferred_username || token.name || token.given_name || "User";
+    tokenParsed.preferred_username ||
+    tokenParsed.name ||
+    tokenParsed.given_name ||
+    "User";
 
   const handleLogout = () =>
     keycloak.logout({ redirectUri: window.location.origin });
 
   const handleLogin = () =>
-    keycloak.login({ redirectUri: window.location.origin });
+    keycloak.login({ redirectUri: opts.redirectUri || window.location.origin });
 
   const handleRegister = () =>
-    keycloak.register({ redirectUri: window.location.origin });
+    keycloak.register({ redirectUri: opts.redirectUri || window.location.origin });
 
   return (
     <Routes>
       {/* Public signup route */}
       <Route
         path="/signup"
-        element={
-          <Signup
-            onLogin={handleLogin}
-            onRegister={handleRegister}
-          />
-        }
+        element={<Signup onLogin={handleLogin} onRegister={handleRegister} />}
       />
 
-      {/* Default route: go to dashboard if auth is successful, otherwise go signup */}
+      {/* Default route */}
       <Route
         path="/"
         element={
@@ -84,6 +85,16 @@ export default function App() {
         element={
           <RequireAuth>
             <CalendarPage />
+          </RequireAuth>
+        }
+      />
+
+      {/* ✅ NEW protected report route */}
+      <Route
+        path="/report/spending"
+        element={
+          <RequireAuth>
+            <SpendingReport />
           </RequireAuth>
         }
       />
