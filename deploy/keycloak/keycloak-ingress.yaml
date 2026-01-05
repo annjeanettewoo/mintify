@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-ingress
+  namespace: keycloak
+spec:
+  tls:
+    - hosts:
+        - keycloak.ltu-m7011e-9.se
+      secretName: keycloak-tls
+  rules:
+    - host: keycloak.ltu-m7011e-9.se
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 80
