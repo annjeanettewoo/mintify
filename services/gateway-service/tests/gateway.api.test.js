@@ -1,6 +1,9 @@
 // tests/gateway.api.test.js
 const request = require('supertest');
 
+// ✅ Enable dev mode auth so proxy routes are reachable in tests
+process.env.ALLOW_DEV_USER = 'true';
+
 // Mock http-proxy-middleware BEFORE loading app
 jest.mock('http-proxy-middleware', () => {
   const mockCreateProxyMiddleware = jest.fn((options) => {

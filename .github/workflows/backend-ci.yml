@@ -2,9 +2,7 @@ name: Backend CI
 
 on:
   push:
-    branches:
-      - main
-      - junteak
+    branches: [main, junteak]
     paths:
       - 'services/budget-service/**'
       - 'services/transact-service/**'
@@ -12,9 +10,7 @@ on:
       - 'services/gateway-service/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
-    branches:
-      - main
-      - junteak
+    branches: [main, junteak]
     paths:
       - 'services/budget-service/**'
       - 'services/transact-service/**'
@@ -27,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         service:
           - name: budget-service
@@ -61,4 +58,5 @@ jobs:
       - name: Run tests
         env:
           CI: true
+          NODE_ENV: test
         run: npm test
