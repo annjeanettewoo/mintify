@@ -2,7 +2,7 @@ app:
   name: transact-service
 image:
   repository: junteak/mintify-transact-service
-  tag: "amd64-3251473"
+  tag: "amd64-cf68450"
   pullPolicy: Always
 service:
   type: ClusterIP
