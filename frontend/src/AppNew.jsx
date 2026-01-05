@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard.jsx";
 import Spendings from "./pages/Spendings.jsx";

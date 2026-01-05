@@ -131,6 +131,10 @@ describe('notif-service API', () => {
     expect(res.status).toBe(200);
     expect(res.body.read).toBe(true);
     expect(Notification.findOneAndUpdate).toHaveBeenCalled();
+    expect(Notification.findOneAndUpdate.mock.calls[0][0]).toMatchObject({
+        _id: 'n1',
+        userId: 'demo-user',
+    });
   });
 
   it('PUT /api/notifications/:id/read returns 404 when not found', async () => {
