@@ -26,7 +26,7 @@ flowchart LR
   U[User Browser] -->|HTTPS| FE[frontend]
   FE -->|HTTPS REST| GW[gateway-service]
 
-  GW -->|OIDC JWT validate (JWKS)| KC[Keycloak]
+  GW -->|OIDC JWT validate| KC[Keycloak]
   GW -->|REST| TS[transact-service]
   GW -->|REST| BS[budget-service]
   GW -->|REST| NS[notif-service]
