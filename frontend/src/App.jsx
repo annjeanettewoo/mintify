@@ -1,5 +1,4 @@
 // frontend/src/App.jsx
-// trigger CD pt2
 
 import "./App.css";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -9,20 +8,24 @@ import Spendings from "./pages/Spendings.jsx";
 import Budgets from "./pages/Budgets.jsx";
 import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
 import Signup from "./pages/Signup.jsx";
-
-// ✅ add this import
 import SpendingReport from "./pages/spendingReport.jsx";
 
 import keycloak from "./services/keycloak";
 
-// Small wrapper to protect routes
+// Wrapper to protect authenticated routes
 function RequireAuth({ children }) {
   const location = useLocation();
 
   if (!keycloak.authenticated) {
-    // send them to signup (which can also offer "Log in")
-    return <Navigate to="/signup" replace state={{ from: location.pathname }} />;
+    return (
+      <Navigate
+        to="/signup"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
   }
+
   return children;
 }
 
@@ -34,24 +37,27 @@ export default function App() {
     tokenParsed.given_name ||
     "User";
 
-  // Always come back to the deployed frontend origin (e.g. https://mintify.ltu-m7011e-9.se)
+  // Always redirect back to deployed frontend origin
   const redirectUri = window.location.origin;
 
-  const handleLogout = () => keycloak.logout({ redirectUri });
-
   const handleLogin = () => keycloak.login({ redirectUri });
-
   const handleRegister = () => keycloak.register({ redirectUri });
+  const handleLogout = () => keycloak.logout({ redirectUri });
 
   return (
     <Routes>
-      {/* Public signup route */}
+      {/* Public route */}
       <Route
         path="/signup"
-        element={<Signup onLogin={handleLogin} onRegister={handleRegister} />}
+        element={
+          <Signup
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+          />
+        }
       />
 
-      {/* Default route */}
+      {/* Home */}
       <Route
         path="/"
         element={
@@ -72,6 +78,7 @@ export default function App() {
           </RequireAuth>
         }
       />
+
       <Route
         path="/budgets"
         element={
@@ -80,6 +87,7 @@ export default function App() {
           </RequireAuth>
         }
       />
+
       <Route
         path="/calendar"
         element={
@@ -89,7 +97,6 @@ export default function App() {
         }
       />
 
-      {/* ✅ NEW protected report route */}
       <Route
         path="/report/spending"
         element={
@@ -99,6 +106,7 @@ export default function App() {
         }
       />
 
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
