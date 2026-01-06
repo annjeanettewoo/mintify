@@ -1,0 +1,11 @@
+{
+  "name": "mintify-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "auth-smoke-test": "node auth-smoke-test.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

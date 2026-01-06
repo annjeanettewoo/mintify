@@ -149,6 +149,9 @@ jobs:
           build-args: |
             VITE_AUTH_BASE_URL=https://auth.ltu-m7011e-9.se
             VITE_API_BASE_URL=https://gateway.ltu-m7011e-9.se
+            VITE_KEYCLOAK_URL=https://keycloak.ltu-m7011e-9.se
+            VITE_KEYCLOAK_REALM=mintify
+            VITE_KEYCLOAK_CLIENT_ID=mintify-frontend
 
       - name: Update frontend values.yaml
         if: steps.changes.outputs.frontend == 'true'

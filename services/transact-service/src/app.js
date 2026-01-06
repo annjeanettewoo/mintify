@@ -6,6 +6,7 @@ const tempUser = require('./middleware/tempUser');
 const transactRoutes = require('./routes/transactRoutes');
 const adviceRoutes = require('./routes/adviceRoutes');
 const summaryRoutes = require('./routes/summaryRoutes');
+const importRoutes = require('./routes/importRoutes'); // ✅ ADD
 const { metricsMiddleware, metricsHandler } = require('./metrics');
 
 function createApp() {
@@ -32,6 +33,7 @@ function createApp() {
 
   // Routes
   app.use('/api/transactions', transactRoutes);
+  app.use('/api/transactions', importRoutes); // ✅ ADD (now POST /api/transactions/import exists)
   app.use('/api/advice', adviceRoutes);
   app.use('/api/summary', summaryRoutes);
 
