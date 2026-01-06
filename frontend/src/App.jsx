@@ -34,14 +34,14 @@ export default function App() {
     tokenParsed.given_name ||
     "User";
 
-  const handleLogout = () =>
-    keycloak.logout({ redirectUri: window.location.origin });
+  // Always come back to the deployed frontend origin (e.g. https://mintify.ltu-m7011e-9.se)
+  const redirectUri = window.location.origin;
 
-  const handleLogin = () =>
-    keycloak.login({ redirectUri: opts.redirectUri || window.location.origin });
+  const handleLogout = () => keycloak.logout({ redirectUri });
 
-  const handleRegister = () =>
-    keycloak.register({ redirectUri: opts.redirectUri || window.location.origin });
+  const handleLogin = () => keycloak.login({ redirectUri });
+
+  const handleRegister = () => keycloak.register({ redirectUri });
 
   return (
     <Routes>
