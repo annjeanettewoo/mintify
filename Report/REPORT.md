@@ -53,10 +53,10 @@ flowchart LR
   DEV[Developer Push/PR] --> GH[GitHub Repo]
   GH --> CI[CI: Lint/Test]
   CI --> BUILD[Build Docker Images]
-  BUILD --> REG[(Container Registry)]
+  BUILD --> REG[Container Registry]
   BUILD --> GITOPS[Update K8s Manifests/Helm Values in GitOps Repo]
-  GITOPS --> CD[GitOps Controller (ArgoCD/Fleet)]
-  CD --> K8S[(Rancher/Kubernetes Cluster)]
+  GITOPS --> CD[GitOps Controller - ArgoCD/Fleet]
+  CD --> K8S[Rancher/Kubernetes Cluster]
   K8S --> OBS[Monitoring/Logs/Tracing]
 ```
 
