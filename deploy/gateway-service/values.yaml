@@ -2,7 +2,7 @@ app:
   name: gateway-service
 image:
   repository: junteak/mintify-gateway-service
-  tag: "amd64-c3d021f"
+  tag: "amd64-df60fee"
   pullPolicy: Always
 service:
   type: ClusterIP
