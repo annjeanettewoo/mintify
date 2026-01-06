@@ -1,5 +1,4 @@
 // frontend/src/App.jsx
-// trigger CD pt2
 
 import "./App.css";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -10,8 +9,10 @@ import Budgets from "./pages/Budgets.jsx";
 import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
 import Signup from "./pages/Signup.jsx";
 
-// ✅ Make sure this matches your actual filename EXACTLY:
-// If your file is src/pages/SpendingReport.jsx, use this:
+// IMPORTANT:
+// Make sure your file name matches this import.
+// If your file is "SpendingReport.jsx", then use:
+// import SpendingReport from "./pages/SpendingReport.jsx";
 import SpendingReport from "./pages/spendingReport.jsx";
 
 import keycloak from "./services/keycloak";
@@ -21,7 +22,6 @@ function RequireAuth({ children }) {
   const location = useLocation();
 
   if (!keycloak.authenticated) {
-    // send them to signup (which can also offer "Log in")
     return <Navigate to="/signup" replace state={{ from: location.pathname }} />;
   }
   return children;
@@ -35,12 +35,15 @@ export default function App() {
     tokenParsed.given_name ||
     "User";
 
-  // ✅ Define redirect options ONCE (removes the undefined opts error)
-  const redirectOpts = { redirectUri: window.location.origin };
+  const handleLogout = () =>
+    keycloak.logout({ redirectUri: window.location.origin });
 
-  const handleLogout = () => keycloak.logout(redirectOpts);
-  const handleLogin = () => keycloak.login(redirectOpts);
-  const handleRegister = () => keycloak.register(redirectOpts);
+  // ✅ FIX: remove "opts" (it wasn't defined)
+  const handleLogin = () =>
+    keycloak.login({ redirectUri: window.location.origin });
+
+  const handleRegister = () =>
+    keycloak.register({ redirectUri: window.location.origin });
 
   return (
     <Routes>
@@ -71,6 +74,7 @@ export default function App() {
           </RequireAuth>
         }
       />
+
       <Route
         path="/budgets"
         element={
@@ -79,6 +83,7 @@ export default function App() {
           </RequireAuth>
         }
       />
+
       <Route
         path="/calendar"
         element={
@@ -88,7 +93,7 @@ export default function App() {
         }
       />
 
-      {/* ✅ NEW protected report route */}
+      {/* Spending report */}
       <Route
         path="/report/spending"
         element={

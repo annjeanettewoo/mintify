@@ -20,18 +20,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 
           env:
-            - name: PORT
-              value: "4000"
-
-            # Internal cluster URLs for the backend services
-            - name: BUDGET_SERVICE_URL
-              value: "http://budget-service:4002"
-
-            - name: TRANSACT_SERVICE_URL
-              value: "http://transact-service:4003"
-
-            - name: NOTIF_SERVICE_URL
-              value: "http://notif-service:4004"
+            {{- range $k, $v := .Values.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
 
           ports:
             - containerPort: {{ .Values.service.port }}
