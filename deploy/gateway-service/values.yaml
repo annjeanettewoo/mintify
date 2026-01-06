@@ -1,14 +1,30 @@
 app:
   name: gateway-service
+
 image:
-  repository: junteak/mintify-gateway-service # <-- change if needed
-  tag: "amd64-760c4ef" # <-- match your built tag
+  repository: junteak/mintify-gateway-service
+  tag: "amd64-760c4ef"
   pullPolicy: Always
+
 service:
   type: ClusterIP
   port: 4000
+
 ingress:
   enabled: true
   className: traefik
-  host: gateway.ltu-m7011e-9.se # you can change this if you want
+  host: gateway.ltu-m7011e-9.se
   path: /
+
+env:
+  PORT: "4000"
+
+  # Internal cluster URLs for the backend services
+  BUDGET_SERVICE_URL: "http://budget-service:4002"
+  TRANSACT_SERVICE_URL: "http://transact-service:4003"
+  NOTIF_SERVICE_URL: "http://notif-service:4004"
+
+  # ✅ IMPORTANT: make gateway validate tokens against the PUBLIC Keycloak URL
+  KEYCLOAK_REALM: "mintify"
+  KEYCLOAK_ISSUER: "https://keycloak.ltu-m7011e-9.se/realms/mintify"
+  KEYCLOAK_JWKS_URL: "https://keycloak.ltu-m7011e-9.se/realms/mintify/protocol/openid-connect/certs"
