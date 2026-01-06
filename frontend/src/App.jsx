@@ -10,7 +10,8 @@ import Budgets from "./pages/Budgets.jsx";
 import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
 import Signup from "./pages/Signup.jsx";
 
-// ✅ add this import
+// ✅ Make sure this matches your actual filename EXACTLY:
+// If your file is src/pages/SpendingReport.jsx, use this:
 import SpendingReport from "./pages/spendingReport.jsx";
 
 import keycloak from "./services/keycloak";
@@ -34,14 +35,12 @@ export default function App() {
     tokenParsed.given_name ||
     "User";
 
-  const handleLogout = () =>
-    keycloak.logout({ redirectUri: window.location.origin });
+  // ✅ Define redirect options ONCE (removes the undefined opts error)
+  const redirectOpts = { redirectUri: window.location.origin };
 
-  const handleLogin = () =>
-    keycloak.login({ redirectUri: opts.redirectUri || window.location.origin });
-
-  const handleRegister = () =>
-    keycloak.register({ redirectUri: opts.redirectUri || window.location.origin });
+  const handleLogout = () => keycloak.logout(redirectOpts);
+  const handleLogin = () => keycloak.login(redirectOpts);
+  const handleRegister = () => keycloak.register(redirectOpts);
 
   return (
     <Routes>
