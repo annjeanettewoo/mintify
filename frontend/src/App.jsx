@@ -8,24 +8,22 @@ import Spendings from "./pages/Spendings.jsx";
 import Budgets from "./pages/Budgets.jsx";
 import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
 import Signup from "./pages/Signup.jsx";
+
+// IMPORTANT:
+// Make sure your file name matches this import.
+// If your file is "SpendingReport.jsx", then use:
+// import SpendingReport from "./pages/SpendingReport.jsx";
 import SpendingReport from "./pages/spendingReport.jsx";
 
 import keycloak from "./services/keycloak";
 
-// Wrapper to protect authenticated routes
+// Small wrapper to protect routes
 function RequireAuth({ children }) {
   const location = useLocation();
 
   if (!keycloak.authenticated) {
-    return (
-      <Navigate
-        to="/signup"
-        replace
-        state={{ from: location.pathname }}
-      />
-    );
+    return <Navigate to="/signup" replace state={{ from: location.pathname }} />;
   }
-
   return children;
 }
 
@@ -37,27 +35,25 @@ export default function App() {
     tokenParsed.given_name ||
     "User";
 
-  // Always redirect back to deployed frontend origin
-  const redirectUri = window.location.origin;
+  const handleLogout = () =>
+    keycloak.logout({ redirectUri: window.location.origin });
 
-  const handleLogin = () => keycloak.login({ redirectUri });
-  const handleRegister = () => keycloak.register({ redirectUri });
-  const handleLogout = () => keycloak.logout({ redirectUri });
+  // ✅ FIX: remove "opts" (it wasn't defined)
+  const handleLogin = () =>
+    keycloak.login({ redirectUri: window.location.origin });
+
+  const handleRegister = () =>
+    keycloak.register({ redirectUri: window.location.origin });
 
   return (
     <Routes>
-      {/* Public route */}
+      {/* Public signup route */}
       <Route
         path="/signup"
-        element={
-          <Signup
-            onLogin={handleLogin}
-            onRegister={handleRegister}
-          />
-        }
+        element={<Signup onLogin={handleLogin} onRegister={handleRegister} />}
       />
 
-      {/* Home */}
+      {/* Default route */}
       <Route
         path="/"
         element={
@@ -97,6 +93,7 @@ export default function App() {
         }
       />
 
+      {/* Spending report */}
       <Route
         path="/report/spending"
         element={
@@ -106,7 +103,6 @@ export default function App() {
         }
       />
 
-      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
