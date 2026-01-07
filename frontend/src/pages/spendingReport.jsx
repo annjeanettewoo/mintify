@@ -42,7 +42,18 @@ export default function SpendingReport() {
   const [aiData, setAiData] = useState(null); // { summary, advice }
   const [showSummary, setShowSummary] = useState(false);
 
-  const token = keycloak.token;
+  // ✅ Always get a fresh token before calling backend
+  async function getFreshToken() {
+    if (!keycloak?.authenticated) return null;
+    try {
+      // refresh if token expires within 30 seconds
+      await keycloak.updateToken(30);
+      return keycloak.token || null;
+    } catch (e) {
+      console.error("Failed to refresh token:", e);
+      return keycloak.token || null; // fallback
+    }
+  }
 
   // Load spending summary when days changes
   useEffect(() => {
@@ -51,11 +62,21 @@ export default function SpendingReport() {
     async function load() {
       setLoading(true);
       setErr("");
+
       try {
+        if (!keycloak?.authenticated) {
+          throw new Error("Not logged in. Please sign in again.");
+        }
+
+        const token = await getFreshToken();
         const summary = await fetchSpendingSummary({ days, token });
+
         if (!cancelled) setData(summary);
       } catch (e) {
-        if (!cancelled) setErr(e?.message || "Failed to load spending summary.");
+        if (!cancelled) {
+          setErr(e?.message || "Failed to load spending summary.");
+          setData(null);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -65,7 +86,7 @@ export default function SpendingReport() {
     return () => {
       cancelled = true;
     };
-  }, [days, token]);
+  }, [days]);
 
   const categories = data?.byCategory || [];
   const total = data?.totalExpenses ?? 0;
@@ -81,12 +102,21 @@ export default function SpendingReport() {
   async function handleGenerateAdvice() {
     setAiLoading(true);
     setAiError("");
+
     try {
+      if (!keycloak?.authenticated) {
+        throw new Error("Not logged in. Please sign in again.");
+      }
+
+      const token = await getFreshToken();
       const result = await fetchSpendingAdvice({ days, token });
+
       setAiData(result);
       setShowSummary(false);
     } catch (e) {
       setAiError(e?.message || "Failed to generate AI advice.");
+      setAiData(null);
+      setShowSummary(false);
     } finally {
       setAiLoading(false);
     }
@@ -129,6 +159,7 @@ export default function SpendingReport() {
               setDays(Number(e.target.value));
               setAiData(null);
               setAiError("");
+              setShowSummary(false);
             }}
             style={{ padding: "6px 10px", borderRadius: 8 }}
           >
@@ -166,8 +197,8 @@ export default function SpendingReport() {
           <b>Couldn’t load report.</b>
           <div style={{ marginTop: 6 }}>{err}</div>
           <div style={{ marginTop: 6, opacity: 0.8, fontSize: 14 }}>
-            Check that your API base URL is correct and that your auth middleware
-            sets <code>req.user.id</code>.
+            If you’re logged in but still seeing this, it’s usually a token/CORS
+            issue. Check DevTools → Network for 401 / CORS errors.
           </div>
         </div>
       )}
@@ -233,7 +264,6 @@ export default function SpendingReport() {
                         )}%)`
                       }
                     >
-                      {/* Don’t force colors; keep defaults */}
                       {chartData.map((_, idx) => (
                         <Cell key={`cell-${idx}`} />
                       ))}

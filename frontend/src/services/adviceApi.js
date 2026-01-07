@@ -1,21 +1,14 @@
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+import { authFetch } from "./authFetch";
 
-export async function fetchSpendingAdvice({ days = 30, token } = {}) {
-  const url = new URL("/api/advice/spending", API_BASE);
-  url.searchParams.set("days", String(days));
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    credentials: "include",
+export async function fetchSpendingAdvice({ days = 30 } = {}) {
+  const res = await authFetch(`/api/advice/spending?days=${days}`, {
+    method: "GET",
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch AI advice");
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Failed to fetch advice (${res.status})`);
   }
 
-  return res.json(); // { summary, advice }
+  return res.json();
 }

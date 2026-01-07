@@ -4,37 +4,63 @@ import keycloak from "./keycloak";
 // All app APIs go via the gateway-service
 // base URL comes from .env: VITE_API_BASE_URL=http://localhost:4000
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+  import.meta.env.VITE_API_BASE_URL || "https://gateway.ltu-m7011e-9.se";
+
+let loginTriggered = false;
+
+async function getFreshToken(minValiditySec = 60) {
+  if (!keycloak?.authenticated) return null;
+
+  // If token is close to expiring, refresh it
+  await keycloak.updateToken(minValiditySec);
+  return keycloak.token || null;
+}
 
 async function authFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };
 
-  if (keycloak?.authenticated) {
-    try {
-      // Refresh token if it expires in the next 30s
-      await keycloak.updateToken(30);
-    } catch (e) {
-      // If refresh fails, request may 401; we'll handle below
+  // 1) Always try to refresh BEFORE request (don’t ignore failures)
+  try {
+    const token = await getFreshToken(60);
+    if (token) headers.Authorization = `Bearer ${token}`;
+  } catch (e) {
+    // Refresh failed -> force re-login ONCE (avoid infinite loop)
+    if (!loginTriggered) {
+      loginTriggered = true;
+      await keycloak.login();
     }
-
-    if (keycloak.token) {
-      headers.Authorization = `Bearer ${keycloak.token}`;
-    }
+    throw new Error("Session expired - re-login required");
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  // 2) Make request
+  let res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
   });
 
-  // If unauthorized, kick user back to Keycloak login
-  if (res.status === 401) {
+  // 3) If 401, refresh token once and retry once
+  if (res.status === 401 && keycloak?.authenticated) {
     try {
-      await keycloak.login();
+      await keycloak.updateToken(0); // force refresh now
+      if (keycloak.token) {
+        headers.Authorization = `Bearer ${keycloak.token}`;
+        res = await fetch(`${API_BASE_URL}${path}`, {
+          ...options,
+          headers,
+        });
+      }
     } catch (e) {
-      // ignore
+      // ignore, handled below
     }
-    throw new Error("Unauthorized (401) - redirecting to login");
+  }
+
+  // 4) Still 401 -> login once (no loops)
+  if (res.status === 401) {
+    if (!loginTriggered) {
+      loginTriggered = true;
+      await keycloak.login();
+    }
+    throw new Error("Unauthorized (401) - re-login required");
   }
 
   return res;
