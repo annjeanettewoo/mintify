@@ -62,7 +62,7 @@ app.get('/health', (req, res) => {
 });
 
 // Auth middleware should run AFTER /metrics and /health so it won't block them
-app.use(keycloakAuth);
+// app.use(keycloakAuth);
 
 // ---------- PROXIES (UPDATED FOR V3 SYNTAX) ----------
 
