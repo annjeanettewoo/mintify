@@ -32,12 +32,12 @@ function attachUserHeader(prefix) {
     let uid = req.user && req.user.id;
 
     // Fallback: allow dev user (demo-user) when enabled
-    // (keycloakAuth may also do this, but having it here makes proxy behavior robust)
     if (!uid && process.env.ALLOW_DEV_USER === 'true') {
       uid = 'demo-user';
     }
 
     if (uid) {
+      console.log(`[gateway:${prefix}] Injecting x-user-id: ${uid}`); // Added log for verification
       proxyReq.setHeader('x-user-id', uid);
     }
   };
@@ -64,22 +64,28 @@ app.get('/health', (req, res) => {
 // Auth middleware should run AFTER /metrics and /health so it won't block them
 app.use(keycloakAuth);
 
-// ---------- PROXIES ----------
+// ---------- PROXIES (UPDATED FOR V3 SYNTAX) ----------
 
 const budgetProxy = createProxyMiddleware({
   target: BUDGET_SERVICE_URL,
   changeOrigin: true,
   pathRewrite: preservePath,
-  onProxyReq: attachUserHeader('budget'),
-  onProxyRes: logProxy('budget'),
+  // V3 FIX: Events must be inside 'on' object
+  on: {
+    proxyReq: attachUserHeader('budget'),
+    proxyRes: logProxy('budget'),
+  }
 });
 
 const transactProxy = createProxyMiddleware({
   target: TRANSACT_SERVICE_URL,
   changeOrigin: true,
   pathRewrite: preservePath,
-  onProxyReq: attachUserHeader('transact'),
-  onProxyRes: logProxy('transact'),
+  // V3 FIX: Events must be inside 'on' object
+  on: {
+    proxyReq: attachUserHeader('transact'),
+    proxyRes: logProxy('transact'),
+  }
 });
 
 const notifProxy = createProxyMiddleware({
@@ -87,8 +93,11 @@ const notifProxy = createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: preservePath,
   ws: true,
-  onProxyReq: attachUserHeader('notif'),
-  onProxyRes: logProxy('notif'),
+  // V3 FIX: Events must be inside 'on' object
+  on: {
+    proxyReq: attachUserHeader('notif'),
+    proxyRes: logProxy('notif'),
+  }
 });
 
 // Mount proxies
