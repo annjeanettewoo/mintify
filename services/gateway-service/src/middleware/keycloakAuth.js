@@ -1,9 +1,18 @@
+// src/middleware/
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 
 const KEYCLOAK_JWKS_URL = process.env.KEYCLOAK_JWKS_URL;
 const KEYCLOAK_ISSUER = process.env.KEYCLOAK_ISSUER;
 const KEYCLOAK_AUDIENCE = process.env.KEYCLOAK_AUDIENCE;
+
+console.log('[auth-init] Configuration:', {
+    jwksUrl: KEYCLOAK_JWKS_URL,
+    issuer: KEYCLOAK_ISSUER,
+    audience: KEYCLOAK_AUDIENCE,
+    allowDev: process.env.ALLOW_DEV_USER
+});
+
 function allowDevUser() {
   return process.env.ALLOW_DEV_USER === 'true';
 }
@@ -23,6 +32,7 @@ function getKey(header, callback) {
 
     client.getSigningKey(header.kid, (err, key) => {
         if (err) {
+            console.error(`[auth] Error fetching signing key for kid "${header.kid}":`, err.message);
             return callback(err);
         }
         const signingKey = key.getPublicKey();
@@ -62,6 +72,44 @@ async function keycloakAuth(req, res, next) {
     if (hasBearer && client) {
         const token = authHeader.substring('Bearer '.length).trim();
 
+      // --- NEW LOGGING SECTION START ---
+      const decodedUntrusted = jwt.decode(token, { complete: true });
+      if (decodedUntrusted) {
+            const { payload, header } = decodedUntrusted;
+
+            console.log('\n[auth-debug] --- Incoming Token Analysis ---');
+            console.log('[auth-debug] Token Header (KID):', header.kid);
+            console.log('[auth-debug] Token Payload:', JSON.stringify(payload, null, 2));
+
+            // 1. Detect Issuer Mismatch
+            if (KEYCLOAK_ISSUER && payload.iss !== KEYCLOAK_ISSUER) {
+                console.warn(`[auth-debug] ⚠️ ISSUER MISMATCH! \n   Expected: "${KEYCLOAK_ISSUER}"\n   Received: "${payload.iss}"`);
+            } else {
+                console.log(`[auth-debug] Issuer check: MATCH (${payload.iss})`);
+            }
+
+            // 2. Detect Audience Mismatch
+            // Note: Audience in JWT can be a string or an array of strings
+            let audValid = false;
+            if (!KEYCLOAK_AUDIENCE) {
+                audValid = true; // No audience required by server
+            } else if (Array.isArray(payload.aud)) {
+                audValid = payload.aud.includes(KEYCLOAK_AUDIENCE);
+            } else {
+                audValid = payload.aud === KEYCLOAK_AUDIENCE;
+            }
+
+            if (!audValid) {
+                console.warn(`[auth-debug] ⚠️ AUDIENCE MISMATCH! \n   Expected: "${KEYCLOAK_AUDIENCE}"\n   Received: ${JSON.stringify(payload.aud)}`);
+            } else {
+                console.log(`[auth-debug] Audience check: MATCH`);
+            }
+            console.log('[auth-debug] -----------------------------------\n');
+        } else {
+            console.error('[auth-debug] Failed to decode token structure. Token might be malformed.');
+        }
+        // --- NEW LOGGING SECTION END ---
+      
         try {
             const decoded = await verifyToken(token);
 
