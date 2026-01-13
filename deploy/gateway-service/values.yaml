@@ -2,7 +2,7 @@ app:
   name: gateway-service
 image:
   repository: junteak/mintify-gateway-service
-  tag: "amd64-df60fee"
+  tag: "amd64-7411172"
   pullPolicy: Always
 service:
   type: ClusterIP
@@ -22,3 +22,5 @@ env:
   KEYCLOAK_REALM: "mintify"
   KEYCLOAK_ISSUER: "https://keycloak.ltu-m7011e-9.se/realms/mintify"
   KEYCLOAK_JWKS_URL: "https://keycloak.ltu-m7011e-9.se/realms/mintify/protocol/openid-connect/certs"
+  AUTH_REQUIRED: "false"
+  ALLOW_DEV_USER: "true"
