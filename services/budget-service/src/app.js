@@ -1,7 +1,7 @@
 // src/app.js
 const express = require('express');
 const cors = require('cors');
-const tempUser = require('./middleware/tempUser');
+const tempUser = require('../middleware/tempUser');
 const budgetRoutes = require('./routes/budgetRoutes');
 const { metricsMiddleware, metricsHandler } = require('./metrics');
 
