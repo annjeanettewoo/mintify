@@ -9,12 +9,8 @@ import Spendings from "./pages/Spendings.jsx";
 import Budgets from "./pages/Budgets.jsx";
 import CalendarPage from "./pages/Calendar/CalendarPage.jsx";
 import Signup from "./pages/Signup.jsx";
-
-// IMPORTANT:
-// Make sure your file name matches this import.
-// If your file is "SpendingReport.jsx", then use:
-// import SpendingReport from "./pages/SpendingReport.jsx";
-import SpendingReport from "./pages/spendingReport.jsx";
+import useNotif from "./hooks/useNotif.js";
+import SpendingReport from "./pages/SpendingReport.jsx";
 
 import keycloak from "./services/keycloak";
 
@@ -29,6 +25,7 @@ function RequireAuth({ children }) {
 }
 
 export default function App() {
+  useNotif();
   const tokenParsed = keycloak?.tokenParsed || {};
   const userName =
     tokenParsed.preferred_username ||

@@ -1,5 +1,7 @@
 // src/pages/SpendingReport.jsx
 import { useEffect, useMemo, useState } from "react";
+// 1. Import useNavigate for the back button
+import { useNavigate } from "react-router-dom"; 
 import keycloak from "../services/keycloak";
 
 import { fetchSpendingSummary } from "../services/summaryApi";
@@ -15,9 +17,19 @@ import {
   Cell,
 } from "recharts";
 
+// 2. Define a color palette for the Pie Chart
+const COLORS = [
+  "#F7DC6F", // Yellow (Food)
+  "#82E0AA", // Mint Green (Groceries)
+  "#F1948A", // Pastel Red (Shopping)
+  "#D2B4DE", // Lavender (Entertainment)
+  "#85C1E9", // Sky Blue (Travel)
+];
+
 function formatMoney(n) {
   const val = Number(n || 0);
-  return val.toLocaleString(undefined, { style: "currency", currency: "SGD" });
+  // 3. Changed currency from SGD to EUR
+  return val.toLocaleString(undefined, { style: "currency", currency: "EUR" });
 }
 
 function formatDate(iso) {
@@ -29,6 +41,8 @@ function formatDate(iso) {
 }
 
 export default function SpendingReport() {
+  // 1. Initialize navigation
+  const navigate = useNavigate();
   const [days, setDays] = useState(30);
 
   // Spending summary state
@@ -39,19 +53,18 @@ export default function SpendingReport() {
   // AI coach state
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
-  const [aiData, setAiData] = useState(null); // { summary, advice }
+  const [aiData, setAiData] = useState(null); 
   const [showSummary, setShowSummary] = useState(false);
 
-  // ✅ Always get a fresh token before calling backend
+  // Always get a fresh token before calling backend
   async function getFreshToken() {
     if (!keycloak?.authenticated) return null;
     try {
-      // refresh if token expires within 30 seconds
       await keycloak.updateToken(30);
       return keycloak.token || null;
     } catch (e) {
       console.error("Failed to refresh token:", e);
-      return keycloak.token || null; // fallback
+      return keycloak.token || null; 
     }
   }
 
@@ -133,12 +146,30 @@ export default function SpendingReport() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-        <h1 style={{ margin: 0 }}>Spending Report</h1>
-        <p style={{ margin: 0, opacity: 0.7 }}>
-          Summary + category breakdown + AI tips
-        </p>
+      {/* 1. Header with Back Button */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+        <button
+          onClick={() => navigate("/dashboard")} // Change "/dashboard" if your route is named differently
+          style={{
+            alignSelf: "flex-start",
+            background: "none",
+            border: "none",
+            color: "#666",
+            cursor: "pointer",
+            fontSize: "14px",
+            padding: 0,
+            textDecoration: "underline"
+          }}
+        >
+          &larr; Back to Dashboard
+        </button>
+        
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+          <h1 style={{ margin: 0 }}>Spending Report</h1>
+          <p style={{ margin: 0, opacity: 0.7 }}>
+            Summary + category breakdown + AI tips
+          </p>
+        </div>
       </div>
 
       {/* Controls */}
@@ -252,12 +283,13 @@ export default function SpendingReport() {
             ) : (
               <div style={{ width: "100%", height: 230 }}>
                 <ResponsiveContainer>
-                  <PieChart>
+                  {/* Kept margins to prevent labels from being cut off */}
+                  <PieChart margin={{ top: 30, bottom: 30, left: 20, right: 20 }}>
                     <Pie
                       data={chartData}
                       dataKey="value"
                       nameKey="name"
-                      outerRadius={80}
+                      outerRadius={70}
                       label={(entry) =>
                         `${entry.name} (${Number(entry.percentage || 0).toFixed(
                           1
@@ -265,13 +297,16 @@ export default function SpendingReport() {
                       }
                     >
                       {chartData.map((_, idx) => (
-                        <Cell key={`cell-${idx}`} />
+                        <Cell 
+                          key={`cell-${idx}`} 
+                          fill={COLORS[idx % COLORS.length]} 
+                        />
                       ))}
                     </Pie>
                     <Tooltip
                       formatter={(value, name) => [formatMoney(value), name]}
                     />
-                    <Legend />
+                    {/* <Legend /> has been removed */}
                   </PieChart>
                 </ResponsiveContainer>
               </div>
