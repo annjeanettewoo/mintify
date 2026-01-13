@@ -1,0 +1,8 @@
+KEYCLOAK_ISSUER=http://keycloak.keycloak.svc.cluster.local/realms/mintify
+KEYCLOAK_JWKS_URL=http://keycloak.keycloak.svc.cluster.local/realms/mintify/protocol/openid-connect/certs
+KEYCLOAK_AUDIENCE=
+ALLOW_DEV_USER=false
+
+BUDGET_SERVICE_URL=http://budget-service.mintify.svc.cluster.local:4002
+TRANSACT_SERVICE_URL=http://transact-service.mintify.svc.cluster.local:4003
+NOTIF_SERVICE_URL=http://notif-service.mintify.svc.cluster.local:4004

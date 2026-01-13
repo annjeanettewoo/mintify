@@ -6,7 +6,6 @@ import keycloak from "./keycloak";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://gateway.ltu-m7011e-9.se";
 
-let loginTriggered = false;
 
 async function getFreshToken(minValiditySec = 60) {
   if (!keycloak?.authenticated) return null;
@@ -125,12 +124,20 @@ export async function patchBudgetSpent(id, amount) {
 // ---------- TRANSACTIONS (via gateway → transact-service) ----------
 
 export async function fetchTransactions() {
-  const res = await authFetch("/api/transactions", {
-    method: "GET",
-    headers: { "Cache-Control": "no-cache" },
-    cache: "no-store",
-  });
-  return safeJson(res, []);
+  try {
+    const res = await authFetch("/api/transactions", {
+      method: "GET",
+      headers: { "Cache-Control": "no-cache" },
+      cache: "no-store",
+    });
+    return safeJson(res, []);
+  } catch (e) {
+    // Key fix: don't crash the page while auth is still initializing
+    if (e.message === "AUTH_NOT_READY" || e.message === "KEYCLOAK_NOT_INITIALIZED") {
+      return [];
+    }
+    throw e; // real errors still surface
+  }
 }
 
 export async function createTransaction(payload) {
