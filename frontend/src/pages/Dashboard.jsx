@@ -12,6 +12,8 @@ import CategoryPage from "./dashboard/CategoryPage";
 import AddTransactionModal from "./dashboard/AddTransactionModal";
 import AddIncomeModal from "./dashboard/AddIncomeModal";
 
+import useNotifications from "../hooks/useNotif"; 
+
 import {
   fetchBudgets,
   fetchTransactions,
@@ -22,349 +24,272 @@ import {
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function Dashboard({ onLogout, userName }) {
+  // Activate Notifications
+  useNotifications();
+
   const navigate = useNavigate();
 
-  // "dashboard" | "spendings" | "budgets" | "calendar" | "category"
-  const [activeView, setActiveView] = useState("dashboard");
-
-  const [budgets, setBudgets] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Persist View
+  const [activeView, setActiveView] = useState(() => {
+    return localStorage.getItem("mintify_active_view") || "dashboard";
+  });
+  
+  useEffect(() => {
+    localStorage.setItem("mintify_active_view", activeView);
+  }, [activeView]);
 
   const [activeCategoryView, setActiveCategoryView] = useState(null);
 
-  // Calendar entries: { "YYYY-MM-DD": { amount: number|null, imageUrl: string|null } }
-  const [calendarEntries, setCalendarEntries] = useState({});
+  // --- STATE ---
+  const [budgets, setBudgets] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const [successMsg, setSuccessMsg] = useState(null);
 
-  // Expense modal state
+  // --- MODALS ---
   const [showAddForm, setShowAddForm] = useState(false);
   const [savingTx, setSavingTx] = useState(false);
   const [formError, setFormError] = useState(null);
-  const [newTx, setNewTx] = useState({
-    amount: "",
-    type: "expense",
-    category: "Food",
-    description: "",
-    date: todayISO(),
-  });
+  const [newTx, setNewTx] = useState({ amount: "", type: "expense", category: "Food", description: "", date: todayISO() });
 
-  // Income modal state
   const [showIncomeForm, setShowIncomeForm] = useState(false);
   const [savingIncome, setSavingIncome] = useState(false);
   const [incomeError, setIncomeError] = useState(null);
-  const [incomeTx, setIncomeTx] = useState({
-    amount: "",
-    description: "",
-    date: todayISO(),
-  });
+  const [incomeTx, setIncomeTx] = useState({ amount: "", description: "", date: todayISO() });
 
-  // ---------- Data loading ----------
-  const loadData = async () => {
+  // --- DATA FETCHING ---
+  const fetchAllData = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       const [budgetsRes, transactionsRes] = await Promise.all([
         fetchBudgets(),
         fetchTransactions(),
       ]);
-
-      setBudgets(budgetsRes);
-      setTransactions(transactionsRes);
+      
+      if (Array.isArray(budgetsRes)) setBudgets([...budgetsRes]);
+      if (Array.isArray(transactionsRes)) setTransactions([...transactionsRes]);
     } catch (err) {
-      console.error("Failed to transaction data:", err);
-      setError("Could not load data from transact-service.");
-    } finally {
-      setLoading(false);
+      console.error("Fetch failed", err);
     }
   };
 
   useEffect(() => {
-    loadData();
+    const performInitialLoad = async () => {
+      try {
+        setInitialLoading(true);
+        await fetchAllData();
+      } catch (err) {
+        setError("Could not load data.");
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    performInitialLoad();
   }, []);
 
-  // ---------- Derived values ----------
-  const expenseTransactions = transactions.filter((t) => t.type === "expense");
+  // Real-time listener
+  useEffect(() => {
+    const handleRealtimeUpdate = async () => {
+      // Wait for DB propagation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await fetchAllData();
+    };
 
-  const totalSpent = expenseTransactions.reduce(
-    (sum, t) => sum + (t.amount || 0),
-    0
-  );
-  const totalTransactionsCount = transactions.length;
+    window.addEventListener("mintify:data-updated", handleRealtimeUpdate);
+    return () => window.removeEventListener("mintify:data-updated", handleRealtimeUpdate);
+  }, []);
 
-  const categories = ["Food", "Groceries", "Entertainment", "Travel", "Shopping"];
-
-  const amountsByCategory = categories.reduce((acc, cat) => {
-    const amount = expenseTransactions
-      .filter((t) => t.category === cat)
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-    acc[cat] = amount;
-    return acc;
-  }, {});
-
-  const maxCategoryAmount = Math.max(
-    ...categories.map((cat) => amountsByCategory[cat] || 0),
-    1
-  );
-
-  const barWidth = (cat) => {
-    const amt = amountsByCategory[cat] || 0;
-    return `${Math.round((amt / maxCategoryAmount) * 100)}%`;
+  // --- STATE UPDATERS ---
+  const handleTransactionUpdate = (updatedTx) => {
+    if (!updatedTx) return;
+    setTransactions((prevTransactions) => 
+      prevTransactions.map((tx) => {
+        const txId = tx._id || tx.id;
+        const updatedId = updatedTx._id || updatedTx.id;
+        if (txId && updatedId && txId === updatedId) {
+          return { ...tx, ...updatedTx };
+        }
+        return tx;
+      })
+    );
   };
 
-  const fmt = (num) => (typeof num === "number" ? num.toFixed(2) : "0.00");
-
-  // total from calendar entries
-  const totalCalendarLogged = Object.values(calendarEntries).reduce(
-    (sum, e) => (e.amount ? sum + e.amount : sum),
-    0
-  );
-
-  // ---------- Category drill-down ----------
-  const categoryTransactions = useMemo(() => {
-    if (!activeCategoryView) return [];
-    return expenseTransactions.filter(
-      (t) => (t.category || "Other") === activeCategoryView
+  const handleTransactionDelete = (deletedId) => {
+    setTransactions((prevTransactions) => 
+      prevTransactions.filter((tx) => (tx._id || tx.id) !== deletedId)
     );
-  }, [activeCategoryView, expenseTransactions]);
+  };
+  
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(null), 3000);
+  };
 
-  const totalCategorySpent = useMemo(
-    () =>
-      categoryTransactions.reduce(
-        (sum, t) => sum + (Number(t.amount) || 0),
-        0
-      ),
-    [categoryTransactions]
-  );
-
-  // ---------- Handlers: expenses ----------
+  // --- HANDLERS ---
   const handleAddTransaction = async (e) => {
     e.preventDefault();
-
     try {
       setSavingTx(true);
-      setFormError(null);
-
-      const payload = {
-        ...newTx,
-        amount: Number(newTx.amount),
+      const res = await createTransaction({ ...newTx, amount: Number(newTx.amount) });
+      
+      // Use current timestamp if today for correct sorting
+      const isToday = newTx.date === todayISO();
+      const optimisticDate = isToday ? new Date().toISOString() : newTx.date;
+      
+      const createdTx = res || { 
+        ...newTx, 
+        amount: Number(newTx.amount), 
+        date: optimisticDate,
+        _id: `temp-${Date.now()}` 
       };
-
-      await createTransaction(payload);
-      await loadData();
-
+      
+      setTransactions((prev) => [createdTx, ...prev]);
       setShowAddForm(false);
-      setNewTx({
-        amount: "",
-        type: "expense",
-        category: "Food",
-        description: "",
-        date: todayISO(),
-      });
+      setNewTx({ amount: "", type: "expense", category: "Food", description: "", date: todayISO() });
+      
+      showSuccess("📝 Transaction added");
+
     } catch (err) {
-      console.error("Failed to create transaction:", err);
-      setFormError("Could not save transaction. Please try again.");
+      setFormError("Failed to save.");
     } finally {
       setSavingTx(false);
     }
   };
 
-  const openExpenseModal = () => {
-    setNewTx({
-      amount: "",
-      type: "expense",
-      category: "Food",
-      description: "",
-      date: todayISO(),
-    });
-    setShowAddForm(true);
-  };
-
-  // ---------- Handlers: income ----------
   const handleAddIncome = async (e) => {
     e.preventDefault();
-
     try {
       setSavingIncome(true);
-      setIncomeError(null);
+      const res = await createTransaction({ type: "income", amount: Number(incomeTx.amount), description: incomeTx.description, date: incomeTx.date });
+      
+      const isToday = incomeTx.date === todayISO();
+      const optimisticDate = isToday ? new Date().toISOString() : incomeTx.date;
 
-      const payload = {
-        type: "income",
-        amount: Number(incomeTx.amount),
-        description: incomeTx.description,
-        date: incomeTx.date,
-        // no category for income
+      const createdTx = res || { 
+        ...incomeTx, 
+        type: "income", 
+        amount: Number(incomeTx.amount), 
+        date: optimisticDate,
+        _id: `temp-${Date.now()}` 
       };
 
-      await createTransaction(payload);
-      await loadData();
-
+      setTransactions((prev) => [createdTx, ...prev]);
       setShowIncomeForm(false);
-      setIncomeTx({
-        amount: "",
-        description: "",
-        date: todayISO(),
-      });
+      setIncomeTx({ amount: "", description: "", date: todayISO() });
+      
+      showSuccess("💰 Income added");
+
     } catch (err) {
-      console.error("Failed to create income.", err);
-      setIncomeError("Could not save income. Please try again.");
+      setIncomeError("Failed to save.");
     } finally {
       setSavingIncome(false);
     }
   };
 
-  const openIncomeModal = () => {
-    setIncomeTx({
-      amount: "",
-      description: "",
-      date: todayISO(),
-    });
-    setShowIncomeForm(true);
+  const handleCreateBudget = async (budgetPayload) => {
+    await createBudget(budgetPayload);
+    await fetchAllData();
+    showSuccess("📊 Budget created");
   };
 
-  // ---------- Budgets ----------
-  const handleCreateBudget = async ({ category, limit }) => {
-    try {
-      await createBudget({ category, limit });
-      await loadData();
-    } catch (err) {
-      console.error("Failed to create budget:", err);
-      throw err;
-    }
-  };
+  // --- RENDER ---
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  const expenseTransactions = safeTransactions.filter((t) => t.type === "expense");
+  const totalSpent = expenseTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  const totalTransactionsCount = safeTransactions.length;
+  
+  const categories = ["Food", "Groceries", "Entertainment", "Travel", "Shopping"];
+  const amountsByCategory = categories.reduce((acc, cat) => {
+    acc[cat] = expenseTransactions.filter((t) => t.category === cat).reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    return acc;
+  }, {});
+  
+  const maxCategoryAmount = Math.max(...Object.values(amountsByCategory), 1);
+  const barWidth = (cat) => `${Math.round(((amountsByCategory[cat] || 0) / maxCategoryAmount) * 100)}%`;
+  const fmt = (num) => (typeof num === "number" ? num.toFixed(2) : "0.00");
 
-  // ---------- Navigation ----------
-  const openCategoryPage = (category) => {
-    setActiveCategoryView(category);
-    setActiveView("category");
-  };
+  const categoryTransactions = useMemo(() => {
+    if (!activeCategoryView) return [];
+    return expenseTransactions.filter((t) => (t.category || "Other") === activeCategoryView);
+  }, [activeCategoryView, expenseTransactions]);
 
-  const closeCategoryPage = () => {
-    setActiveCategoryView(null);
-    setActiveView("dashboard");
-  };
+  const totalCategorySpent = useMemo(() => 
+    categoryTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0), 
+  [categoryTransactions]);
 
-  // ---------- Render ----------
   return (
     <div className="app">
       <div className="app-shell">
-        {/* -------- SIDEBAR -------- */}
         <aside className="sidebar">
-          <div className="sidebar-logo">
-            <img src={logo} alt="Mintify logo" />
-            <span className="brand-name">mintify</span>
-          </div>
-
+          <div className="sidebar-logo"><img src={logo} alt="Mintify" /><span className="brand-name">mintify</span></div>
           <nav className="sidebar-nav">
-            <p className="sidebar-section-label">GENERAL</p>
-
-            <button
-              type="button"
-              className={`nav-item ${
-                activeView === "dashboard" || activeView === "category"
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() => {
-                setActiveView("dashboard");
-                setActiveCategoryView(null);
-              }}
-            >
-              <span className="nav-dot" />
-              <span>Dashboard</span>
-            </button>
-
-            <button
-              type="button"
-              className={`nav-item ${activeView === "spendings" ? "active" : ""}`}
-              onClick={() => setActiveView("spendings")}
-            >
-              <span className="nav-dot" />
-              <span>Spendings</span>
-            </button>
-
-            <button
-              type="button"
-              className={`nav-item ${activeView === "budgets" ? "active" : ""}`}
-              onClick={() => setActiveView("budgets")}
-            >
-              <span className="nav-dot" />
-              <span>Budgets</span>
-            </button>
-
-            <button
-              type="button"
-              className={`nav-item ${activeView === "calendar" ? "active" : ""}`}
-              onClick={() => setActiveView("calendar")}
-            >
-              <span className="nav-dot" />
-              <span>Calendar</span>
-            </button>
-
-            <p className="sidebar-section-label">TOOLS</p>
-
-            {/* ✅ FIXED: Reports button navigates to SpendingReport page */}
-            <button
-              type="button"
-              className="nav-item"
-              onClick={() => navigate("/report/spending")}
-            >
-              <span className="nav-dot" />
-              <span>Reports</span>
-            </button>
-
-            {/* (kept same styling as your other nav items) */}
-            <button type="button" className="nav-item">
-              <span className="nav-dot" />
-              <span>Settings</span>
-            </button>
+             <button className={`nav-item ${activeView === "dashboard" ? "active" : ""}`} onClick={() => setActiveView("dashboard")}>Dashboard</button>
+             <button className={`nav-item ${activeView === "spendings" ? "active" : ""}`} onClick={() => setActiveView("spendings")}>Spendings</button>
+             <button className={`nav-item ${activeView === "budgets" ? "active" : ""}`} onClick={() => setActiveView("budgets")}>Budgets</button>
+             <button className={`nav-item ${activeView === "calendar" ? "active" : ""}`} onClick={() => setActiveView("calendar")}>Calendar</button>
+             <button className="nav-item" onClick={() => navigate("/report/spending")} >Reports</button>
           </nav>
-
-          <button className="logout-btn" onClick={onLogout}>
-            Log out
-          </button>
+          <button className="logout-btn" onClick={onLogout}>Log out</button>
         </aside>
 
-        {/* -------- MAIN CONTENT -------- */}
         <div className="content">
-          {/* TOPBAR */}
           <header className="topbar">
-            <div className="search-wrapper">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search transactions, budgets..."
-              />
-            </div>
-
-            <div className="topbar-right">
-              <button className="pill-btn">This month</button>
-              <div className="name-tag-widget">
-                <div className="name-tag-top">HELLO, I AM</div>
-                <div className="name-tag-box">
-                  {(userName || "Guest").toUpperCase()}
-                </div>
-              </div>
-            </div>
+            <div className="search-wrapper"><input type="text" className="search-input" placeholder="Search..." /></div>
+            <div className="topbar-right"><div className="name-tag-widget"><div className="name-tag-box">{(userName || "Guest").toUpperCase()}</div></div></div>
           </header>
 
-          {/* MAIN AREA */}
           <main className="main">
+            {error && <div className="error-banner">{error}</div>}
+            
+            {successMsg && (
+                <div style={{
+                  backgroundColor: "#d4edda",
+                  color: "#155724",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  marginBottom: "20px",
+                  border: "1px solid #c3e6cb",
+                  fontSize: "14px",
+                  fontWeight: "500"
+                }}>
+                  {successMsg}
+                </div>
+            )}
+
             {activeView === "dashboard" && (
               <DashboardOverview
-                loading={loading}
+                loading={initialLoading}
                 error={error}
                 totalSpent={totalSpent}
                 totalTransactionsCount={totalTransactionsCount}
                 amountsByCategory={amountsByCategory}
                 barWidth={barWidth}
                 fmt={fmt}
-                onAddTransactionClick={openExpenseModal}
-                onAddIncomeClick={openIncomeModal}
-                onCategoryClick={openCategoryPage}
+                onAddTransactionClick={() => setShowAddForm(true)}
+                onAddIncomeClick={() => setShowIncomeForm(true)}
+                onCategoryClick={(cat) => { setActiveCategoryView(cat); setActiveView("category"); }}
                 onViewReports={() => navigate("/report/spending")}
+              />
+            )}
+
+            {activeView === "spendings" && (
+              <Spendings 
+                transactions={transactions} 
+                loading={initialLoading} 
+                error={error} 
+                onTransactionUpdate={handleTransactionUpdate}
+                onTransactionDelete={handleTransactionDelete}
+              />
+            )}
+
+            {activeView === "budgets" && (
+              <Budgets
+                budgets={budgets}
+                transactions={transactions}
+                loading={initialLoading}
+                error={error}
+                onCreateBudget={handleCreateBudget}
               />
             )}
 
@@ -373,39 +298,14 @@ function Dashboard({ onLogout, userName }) {
                 category={activeCategoryView}
                 transactions={categoryTransactions}
                 total={totalCategorySpent}
-                onBack={closeCategoryPage}
+                onBack={() => { setActiveCategoryView(null); setActiveView("dashboard"); }}
               />
             )}
-
-            {activeView === "spendings" && <Spendings />}
-
-            {activeView === "budgets" && (
-              <Budgets
-                budgets={budgets}
-                transactions={transactions}
-                loading={loading}
-                error={error}
-                onCreateBudget={handleCreateBudget}
-              />
+            
+             {activeView === "calendar" && (
+               <div className="calendar-page"><Calendar transactions={transactions} /></div>
             )}
 
-            {activeView === "calendar" && (
-              <section className="calendar-page">
-                <header className="panel-header">
-                  <h1>Spendings</h1>
-                  <p className="muted">
-                    Tap a day to see how much you spent. Total spent : €{" "}
-                    {fmt(totalSpent)}
-                  </p>
-                </header>
-
-                <div className="calendar-wrapper">
-                  <Calendar transactions={transactions} />
-                </div>
-              </section>
-            )}
-
-            {/* Expense modal */}
             <AddTransactionModal
               open={showAddForm}
               newTx={newTx}
@@ -416,7 +316,6 @@ function Dashboard({ onLogout, userName }) {
               onSubmit={handleAddTransaction}
             />
 
-            {/* Income modal */}
             <AddIncomeModal
               open={showIncomeForm}
               incomeTx={incomeTx}

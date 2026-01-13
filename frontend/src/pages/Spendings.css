@@ -154,7 +154,7 @@
   font-size: 1.1rem;
 }
 
-/* Transactions table */
+/* Transactions table base */
 .tx-table {
   width: 100%;
   border-collapse: collapse;
@@ -174,18 +174,52 @@
   text-transform: uppercase;
 }
 
-.tx-table tbody tr:nth-child(even) {
-  background: #fafbff;
+/* --- Compact Table Styles for 10 items --- */
+.tx-table.compact {
+  font-size: 0.85rem; 
+  border-collapse: separate; 
+  border-spacing: 0 4px;
 }
 
-.tx-amount-col {
+.tx-table.compact th {
+  padding: 8px 10px;
+  font-size: 0.75rem;
+}
+
+/* Align Actions Header Right */
+.tx-table.compact th:last-child {
   text-align: right;
+  padding-right: 15px;
 }
 
-.tx-amount {
-  font-weight: 500;
+.tx-table.compact td {
+  padding: 8px 10px; /* Comfortable padding */
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
+/* Rounded corners for rows */
+.tx-table.compact tr td:first-child { 
+  border-top-left-radius: 6px; 
+  border-bottom-left-radius: 6px; 
+  border-left: 1px solid #f0f0f0; 
+}
+.tx-table.compact tr td:last-child { 
+  border-top-right-radius: 6px; 
+  border-bottom-right-radius: 6px; 
+  border-right: 1px solid #f0f0f0; 
+}
+
+/* Description Truncation */
+.tx-desc-truncate {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Smaller Pills */
 .tx-category-pill {
   display: inline-flex;
   padding: 0.2rem 0.6rem;
@@ -194,40 +228,68 @@
   font-size: 0.75rem;
 }
 
-.link-button {
-  margin-top: 0.75rem;
-  border: none;
-  background: none;
-  color: #1a73e8;
-  font-size: 0.85rem;
-  cursor: pointer;
+.tx-category-pill.small {
+  font-size: 0.7rem;
+  padding: 1px 6px;
 }
+
+/* --- Action Buttons Alignment and Visibility --- */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-right: 5px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 2px 4px;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.edit-btn { color: #555; }
+.delete-btn { color: #d63031; }
 
 /* Category list */
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.5rem;
+}
+
+.category-row {
+  margin-bottom: 1.5rem;
 }
 
 .category-row-top {
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .category-name {
   color: #555;
+  font-weight: 500;
 }
 
 .category-value {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .category-bar-bg {
   width: 100%;
-  height: 6px;
+  height: 12px;
   border-radius: 999px;
   background: #f0f2ff;
   overflow: hidden;
@@ -243,22 +305,4 @@
 .empty-state {
   font-size: 0.9rem;
   color: #9a9ab3;
-}
-
-.tx-actions-col {
-  text-align: right;
-}
-
-.tx-action-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  margin-left: 4px;
-}
-
-.tx-action-btn.danger {
-  background: rgba(179, 61, 54, 0.1);
-  color: #b33d36;
 }
