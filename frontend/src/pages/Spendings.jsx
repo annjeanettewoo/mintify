@@ -1,12 +1,10 @@
-// src/pages/Spendings.jsx
 import { useMemo, useState } from "react";
 import { updateTransaction, deleteTransaction } from "../services/financeApi";
 import "./Spendings.css";
 
-// Displays the spending list, handles local edits/deletions, and updates the parent state
 function Spendings({ transactions = [], loading = false, error = null, onTransactionUpdate, onTransactionDelete }) {
   
-  const [periodLabel] = useState("This month"); 
+  // Removed unused periodLabel state
 
   const [editingTx, setEditingTx] = useState(null);
   const [editSaving, setEditSaving] = useState(false);
@@ -15,9 +13,16 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
   const [successMsg, setSuccessMsg] = useState(null);
 
   const categoriesOptions = ["Food", "Groceries", "Entertainment", "Travel", "Shopping", "Other"];
-  const COLORS = ["#F7D766", "#F29E9E", "#A9C7E2", "#B5E2B0", "#D9B4F2", "#FFCBA4"];
+  
+  const CATEGORY_COLORS = {
+    "Food": "#D9534F",
+    "Groceries": "#F7D766",
+    "Entertainment": "#8ab6ff",
+    "Travel": "#c7e8b3",
+    "Shopping": "#e8d5ff",
+    "Other": "#f9965c"
+  };
 
-  // Calculate totals and category breakdown
   const totals = useMemo(() => {
     if (!transactions.length) return { total: 0, daily: 0, weekly: 0, monthly: 0, byCategory: {} };
 
@@ -34,7 +39,6 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
     return { total, daily: total / 30, weekly: total / 4, monthly: total, byCategory };
   }, [transactions]);
 
-  // Sort transactions by Date (Newest first)
   const sortedTransactions = useMemo(() => {
     return [...transactions].sort((a, b) => {
       const dateA = new Date(a.date);
@@ -45,22 +49,29 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
     });
   }, [transactions]);
 
-  // Display only the latest 10 items
   const latestTransactions = useMemo(() => sortedTransactions.slice(0, 10), [sortedTransactions]);
 
-  // Format category data for the bar graphs
   const categoryList = useMemo(() => {
     const entries = Object.entries(totals.byCategory);
     if (!entries.length) return [];
+    
+    entries.sort((a, b) => b[1] - a[1]);
+
     const max = Math.max(...entries.map(([_, v]) => v || 0)) || 1;
     
-    return entries.map(([name, value], index) => ({ 
+    return entries.map(([name, value]) => ({ 
       name, 
       value, 
       barWidth: (value / max) * 100,
-      color: COLORS[index % COLORS.length] 
+      color: CATEGORY_COLORS[name] || "#CCCCCC" 
     }));
   }, [totals.byCategory]);
+
+  const broadcastUpdate = () => {
+    const bc = new BroadcastChannel('mintify_sync');
+    bc.postMessage('refresh');
+    bc.close();
+  };
 
   const startEdit = (tx) => {
     setEditError(null);
@@ -92,6 +103,8 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
       setEditingTx(null);
       setSuccessMsg("📝 Transaction was edited");
       setTimeout(() => setSuccessMsg(null), 3000);
+      
+      broadcastUpdate(); 
 
     } catch (err) {
       setEditError("Could not update transaction.");
@@ -107,13 +120,14 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
     try {
       await deleteTransaction(id);
       
-      // Update parent state immediately
       if (onTransactionDelete) {
         onTransactionDelete(id);
       }
 
       setSuccessMsg("🗑 Transaction deleted");
       setTimeout(() => setSuccessMsg(null), 3000);
+      
+      broadcastUpdate(); 
 
     } catch (err) {
       console.error("Delete failed", err);
@@ -128,7 +142,7 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
           <h1>Spendings</h1>
           <p className="spendings-subtitle">Overview of your expenses and recent transactions.</p>
         </div>
-        <button className="period-pill">{periodLabel} ▾</button>
+        {/* 'This month' button removed completely */}
       </header>
       
       {successMsg && (
@@ -139,9 +153,13 @@ function Spendings({ transactions = [], loading = false, error = null, onTransac
 
       {!loading && !error && (
         <div className="spendings-grid">
+          
           <section className="card summary-card" style={{ gridColumn: "1 / -1" }}>
-            <div className="summary-header"><span className="summary-label">All expenses</span></div>
-            <div className="summary-main-amount">€ {totals.total.toFixed(2)}</div>
+            <div className="summary-left-group">
+              <span className="summary-label">All Expenses</span>
+              <div className="summary-main-amount">€ {totals.total.toFixed(2)}</div>
+            </div>
+            
             <div className="summary-breakdown">
               <div><span>Daily</span> <span>€ {totals.daily.toFixed(2)}</span></div>
               <div><span>Weekly</span> <span>€ {totals.weekly.toFixed(2)}</span></div>

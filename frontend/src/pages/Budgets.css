@@ -1,345 +1,468 @@
-/* src/pages/Budgets.css */ 
-/* Budgets page using the Mintify palette from App.css */
+/* src/pages/Budgets.css */
 
 .budgets-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 12px 8px 24px;
-  background: transparent;
+  gap: 24px;
+  padding: 2rem 2.5rem; 
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* ========== HEADER ========== */
+/* --- SUCCESS NOTIFICATION --- */
+.success-banner {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #c3e6cb;
+  font-size: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+}
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- HEADER --- */
 .budgets-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
-}
-
-.period-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin: 0 0 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  align-items: center;
 }
 
 .budgets-title {
-  font-size: 22px;
+  font-size: 28px;
   margin: 0;
   color: var(--text-main);
+  text-align: left;
 }
 
-.budgets-subtitle {
-  font-size: 13px;
-  margin-top: 4px;
-  color: var(--text-muted);
-}
-
-.period-pill {
-  background: var(--deep-cherry);
-  color: white;
-  padding: 6px 16px;
-  border-radius: var(--radius-pill);
-  font-size: 13px;
-}
-
-.budgets-status {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.budgets-status.error {
-  color: var(--deep-cherry);
-}
-
-/* ========== SUMMARY CARDS (TOP ROW) ========== */
-
-/* Use flex so cards sit in a row and wrap nicely on small screens */
-.budgets-summary-row {
+.period-selector {
   display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #e0d0c0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
 
-.summary-card {
-  flex: 1 1 180px;
-  border-radius: var(--radius-lg);
-  padding: 12px 18px;
-  background: #fffdf8;           /* neutral card, same as main cards */
-  border: 1px solid #f2cdb2;
-  box-shadow: 0 10px 24px rgba(110, 75, 52, 0.16);
+.period-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.month-picker {
+  border: none;
+  font-size: 14px;
   color: var(--text-main);
+  outline: none;
+  background: transparent;
+  cursor: pointer;
 }
 
-/* 1) CURRENT BALANCE — neutral, no pink */
-.budgets-summary-row .summary-card:nth-child(1) {
+/* --- GRID LAYOUT --- */
+.budgets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  grid-template-rows: auto auto;
+  gap: 24px;
+  width: 100%;
+}
+
+.dashboard-card {
   background: #fffdf8;
-}
-
-/* 2) INCOME — same yellow as groceries / add transaction button */
-.budgets-summary-row .summary-card:nth-child(2) {
-  background: var(--golden-goose);
-  color: var(--brown-moss);
-}
-
-/* 3) EXPENSES — same red as FOOD card */
-.budgets-summary-row .summary-card:nth-child(3) {
-  background: #e16a5a;
-  color: #ffffff;
-}
-
-/* 4) BILLS BUDGET — BLUE, same as mint-glow / entertainment card */
-.budgets-summary-row .summary-card:nth-child(4) {
-  background: var(--mint-glow);
-  color: var(--brown-moss);
-}
-
-/* Make labels readable on red card */
-.budgets-summary-row .summary-card:nth-child(3) .summary-label,
-.budgets-summary-row .summary-card:nth-child(3) .summary-value {
-  color: #ffffff;
-}
-
-.summary-label {
-  font-size: 12px;
-  margin: 0 0 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: inherit;
-}
-
-.summary-value {
-  font-size: 20px;
-  margin: 0;
-  color: inherit;
-}
-
-/* CTA summary card */
-.summary-card-cta {
+  border: 1px solid #f2cdb2;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 20px rgba(110, 75, 52, 0.08);
   display: flex;
   flex-direction: column;
+}
+
+.card-title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* --- TILE 1: TOTAL OVERVIEW --- */
+.summary-card {
   justify-content: space-between;
 }
 
-.create-budget-btn {
-  margin-top: 8px;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  border: none;
-  background: var(--deep-cherry);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  align-self: flex-start;
-  box-shadow: 0 6px 14px rgba(110, 75, 52, 0.25);
-}
-
-.create-budget-btn:hover {
-  filter: brightness(0.95);
-}
-
-/* ========== MAIN GRID ========== */
-
-.budgets-main-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1.1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 14px;
-}
-
-.panel {
-  background: #fffdf8;
-  border: 1px solid #f2cdb2;
-  border-radius: var(--radius-lg);
-  padding: 16px 18px;
-  box-shadow: 0 10px 24px rgba(110, 75, 52, 0.16);
-}
-
-.panel-tall {
-  grid-row: span 2;
-}
-
-.panel-wide {
-  grid-column: span 2;
-}
-
-.panel-title {
-  font-size: 14px;
-  margin: 0 0 2px;
-  color: var(--text-main);
-}
-
-.panel-subtitle {
-  font-size: 11px;
-  margin: 0 0 10px;
-  color: var(--text-muted);
-}
-
-/* ========== CASH FLOW SUMMARY (BARS) ========== */
-
-.cf-row {
-  display: grid;
-  grid-template-columns: 80px 1fr 60px;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.cf-label {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.cf-bar-track {
-  height: 8px;
-  border-radius: 999px;
-  background: #f3e0cd;
-  overflow: hidden;
-}
-
-.cf-bar {
-  height: 100%;
-  border-radius: inherit;
-}
-
-/* Match dashboard category colours */
-.cf-bar.income {
-  background: var(--golden-goose); /* groceries yellow */
-}
-
-.cf-bar.expense {
-  background: #e16a5a;            /* food red */
-}
-
-.cf-bar.savings {
-  background: #dfe9c8;            /* travel green */
-}
-
-.cf-value {
-  font-size: 12px;
-  text-align: right;
-  color: var(--text-main);
-}
-
-/* ========== DONUT CHART (dynamic conic gradient) ========== */
-
-.donut-wrapper {
+.summary-content {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
 }
 
-.donut {
-  position: relative;
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  /* real colours are set inline from Budgets.jsx via backgroundImage */
-  background: #f0e1c0;
-}
-
-.donut-hole {
-  position: absolute;
-  top: 22%;
-  left: 22%;
-  right: 22%;
-  bottom: 22%;
-  border-radius: 50%;
-  background: #fffdf8; /* same as card background */
-}
-
-.donut-legend {
+.summary-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
+}
+
+.summary-divider {
+  width: 1px;
+  height: 40px;
+  background: #e0d0c0;
+  margin: 0 20px;
+}
+
+.summary-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 18px;
+  font-weight: 600;
   color: var(--text-main);
+}
+
+.summary-value.big {
+  font-size: 32px;
+}
+
+.summary-value.negative { color: #d32f2f; }
+
+.total-progress-bar {
+  height: 12px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.total-progress-fill {
+  height: 100%;
+  background: var(--deep-cherry, #d32f2f);
+  transition: width 0.5s ease;
+}
+
+.summary-footer {
+  font-size: 16px;
+  text-align: right;
+  margin: 0;
+}
+
+/* Text Colors */
+.text-success { color: #2e7d32; }
+.text-yellow { color: #ccb013; }
+.text-orange { color: #e65100; }
+.text-danger { color: #d32f2f; }
+
+/* --- TILE 2: PIE CHART --- */
+.pie-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: 100%;
+}
+
+.pie-chart {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.pie-hole {
+  position: absolute;
+  top: 25%; left: 25%;
+  width: 50%; height: 50%;
+  background: #fffdf8;
+  border-radius: 50%;
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Increased from 120px to 200px to allow more items without scrollbar, which increases row height */
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-}
-
-/* (old legend-budget / legend-actual classes no longer needed, but harmless to keep if used elsewhere) */
-
-/* ========== HIGHEST EXPENSES ========== */
-
-.highest-list {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
+  gap: 8px;
   font-size: 13px;
   color: var(--text-main);
 }
 
-.highest-list li {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
 }
 
-.highest-amount {
-  font-weight: 600;
+/* --- TILE 3: ACTIONS --- */
+.actions-card {
+  grid-column: 1; 
+  justify-content: center;
+  align-items: flex-start;
+  align-self: start; 
 }
 
-.muted-row {
+.actions-desc {
+  font-size: 14px;
   color: var(--text-muted);
-  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* ========== BUDGET VS ACTUAL TABLE ========== */
+.big-btn {
+  background: var(--deep-cherry, #b71c1c);
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(183, 28, 28, 0.3);
+  transition: transform 0.1s;
+}
 
-.bva-table {
+.big-btn:hover {
+  transform: translateY(-1px);
+}
+
+.big-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- TILE 4: BREAKDOWN TABLE --- */
+.breakdown-card {
+  grid-column: 2;
+  padding: 0;
+  overflow: hidden;
+}
+
+.breakdown-card .card-title {
+  margin: 24px 24px 12px;
+}
+
+.budget-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
+}
+
+.budget-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: #f8f4e8;
+  color: var(--text-muted);
+  font-weight: 500;
   font-size: 12px;
-  margin-top: 8px;
+  text-transform: uppercase;
 }
 
-.bva-table th,
-.bva-table td {
-  padding: 6px 8px;
+.budget-table.compact th {
+  padding: 10px 16px;
 }
 
-.bva-table thead {
-  background: #f8e4cf;
+.budget-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0e6d6;
+  color: var(--text-main);
+  vertical-align: middle;
 }
 
-.bva-table tbody tr:nth-child(even) {
-  background: #fff2e4;
+.budget-table.compact td {
+  padding: 8px 16px; 
 }
 
-.bva-table .over {
-  color: var(--deep-cherry);
+.cat-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
 }
 
-.bva-table .under {
-  color: #2f7f4f;
+.table-progress {
+  width: 80px;
+  height: 6px;
+  background: #eee;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-/* ========== RESPONSIVE ========== */
+.table-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+}
 
-@media (max-width: 1024px) {
-  .budgets-main-grid {
+/* More specific selector for the table to ensure color wins */
+.budget-table .positive { color: #2e7d32; font-weight: 500; }
+.budget-table .negative { color: #d32f2f; font-weight: 500; }
+
+.action-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.icon-btn:hover { color: #333; }
+.icon-btn.delete:hover { color: #d32f2f; }
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- MODAL FORM --- */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(85, 65, 50, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #fffdf8;
+  padding: 30px;
+  border-radius: 16px;
+  width: 550px;
+  max-width: 90%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  border: 1px solid #f2cdb2;
+}
+
+.modal-card h3 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: var(--text-main);
+  font-size: 22px;
+  border-bottom: 2px solid #f0e6d6;
+  padding-bottom: 16px;
+}
+
+.tx-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tx-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.tx-row label {
+  flex: 0 0 190px; 
+  font-weight: 500;
+  color: var(--text-main);
+  padding-top: 10px;
+}
+
+.input-wrapper {
+  flex: 1;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0c0b0;
+  border-radius: 6px;
+  font-size: 15px;
+  background: white;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  height: 42px;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+  outline: none;
+  border-color: var(--deep-cherry, #b71c1c);
+}
+
+.field-hint {
+  display: block;
+  font-size: 12px;
+  color: #8a7a70;
+  font-style: italic;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.tx-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid #d0c0b0;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.save-btn {
+  background: var(--deep-cherry, #b71c1c);
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .budgets-grid {
     grid-template-columns: 1fr;
   }
-
-  .panel-wide,
-  .panel-tall {
+  
+  .actions-card, .breakdown-card {
     grid-column: auto;
-    grid-row: auto;
+  }
+  
+  .tx-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .tx-row label {
+    flex: none;
+    padding-top: 0;
   }
 }

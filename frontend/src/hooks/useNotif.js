@@ -1,5 +1,4 @@
 // src/hooks/useNotif.js
-
 import { useEffect, useRef } from "react";
 import keycloak from "../services/keycloak";
 
@@ -7,21 +6,27 @@ import keycloak from "../services/keycloak";
 let globalLastAlert = { text: "", time: 0 };
 
 export default function useNotifications() {
+  const wsRef = useRef(null); // Store the WebSocket instance
   const isConnected = useRef(false);
   const bufferRef = useRef([]); 
   const timeoutRef = useRef(null); 
 
   useEffect(() => {
-    if (!keycloak.authenticated || !keycloak.tokenParsed || isConnected.current) return;
+    // 1. Safety Checks
+    if (!keycloak.authenticated || !keycloak.tokenParsed) return;
+    if (isConnected.current) return; // Prevent double-connect
 
     const userId = keycloak.tokenParsed.sub;
     const wsUrl = `${import.meta.env.VITE_NOTIF_WS_URL}?userId=${userId}`;
 
-    console.log("[notif] Connecting WebSocket:", wsUrl);
+    console.log("[notif] Initializing connection to:", wsUrl);
+    
+    // 2. Open Connection
     const ws = new WebSocket(wsUrl);
+    wsRef.current = ws; // Track instance
     isConnected.current = true;
 
-    // --- PROCESS BATCHED MESSAGES ---
+    // --- HELPER: Process Messages ---
     const flushBuffer = () => {
       const messages = bufferRef.current;
       if (messages.length === 0) return;
@@ -40,36 +45,46 @@ export default function useNotifications() {
 
       bufferRef.current = [];
 
-      // Filter identical messages arriving rapidly
+      // Spam Filter: Ignore identical messages within 2 seconds
       const now = Date.now();
       if (alertText === globalLastAlert.text && (now - globalLastAlert.time < 2000)) {
+        console.log("[notif] Duplicate suppressed:", alertText);
         return; 
       }
       globalLastAlert = { text: alertText, time: now };
 
+      // Trigger UI updates
       setTimeout(() => {
-         // Suppress popups for actions that already show a UI banner
-         const lower = alertText.toLowerCase();
-         if (!lower.includes("edited") && !lower.includes("deleted")) {
-            alert(alertText);
-         }
-         
-         window.dispatchEvent(new Event("mintify:data-updated"));
+         alert(alertText); // Show popup
+         window.dispatchEvent(new Event("mintify:data-updated")); // Refresh data
       }, 50);
     };
 
-    // --- LISTENER ---
+    // --- LISTENERS ---
+    ws.onopen = () => console.log("[notif] WS Connected");
+    
     ws.onmessage = (event) => {
+      console.log("[notif] Message received:", event.data);
       bufferRef.current.push(event.data);
+      
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(flushBuffer, 300); 
     };
 
     ws.onerror = (err) => console.error("[notif] WebSocket error", err);
+    
+    ws.onclose = () => {
+      console.log("[notif] WS Closed");
+      isConnected.current = false;
+    };
 
+    // 3. Cleanup Function (Crucial for preventing duplicates)
     return () => {
-      console.log("[notif] WebSocket closing");
-      ws.close();
+      console.log("[notif] Cleaning up WebSocket...");
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
       isConnected.current = false;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };

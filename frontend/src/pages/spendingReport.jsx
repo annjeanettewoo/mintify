@@ -19,11 +19,11 @@ import {
 
 // 2. Define a color palette for the Pie Chart
 const COLORS = [
-  "#F7DC6F", // Yellow (Food)
-  "#82E0AA", // Mint Green (Groceries)
-  "#F1948A", // Pastel Red (Shopping)
-  "#D2B4DE", // Lavender (Entertainment)
-  "#85C1E9", // Sky Blue (Travel)
+  "#D9534F", // Red (Food)
+  "#F7D766", // Yellow (Groceries)
+  "#e8d5ff", // Purple (Shopping)
+  "#8ab6ff", // Blue (Entertainment)
+  "#c7e8b3", // Green (Travel)
 ];
 
 function formatMoney(n) {
