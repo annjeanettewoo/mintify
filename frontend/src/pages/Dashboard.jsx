@@ -24,9 +24,7 @@ import {
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function Dashboard({ onLogout, userName }) {
-  // Activate Notifications
   useNotifications();
-
   const navigate = useNavigate();
 
   // Persist View
@@ -62,6 +60,7 @@ function Dashboard({ onLogout, userName }) {
   // --- DATA FETCHING ---
   const fetchAllData = async () => {
     try {
+      console.log("🔄 Fetching fresh data...");
       const [budgetsRes, transactionsRes] = await Promise.all([
         fetchBudgets(),
         fetchTransactions(),
@@ -88,19 +87,43 @@ function Dashboard({ onLogout, userName }) {
     performInitialLoad();
   }, []);
 
-  // Real-time listener
+  // --- SYNC LISTENERS ---
   useEffect(() => {
+    // 1. WebSocket / Event Listener
     const handleRealtimeUpdate = async () => {
-      // Wait for DB propagation
       await new Promise(resolve => setTimeout(resolve, 500));
       await fetchAllData();
     };
 
+    // 2. BroadcastChannel Listener (Cross-tab)
+    const bc = new BroadcastChannel('mintify_sync');
+    bc.onmessage = (event) => {
+      if (event.data === 'refresh') {
+        console.log("📡 Cross-tab signal received: Refreshing");
+        fetchAllData();
+      }
+    };
+
     window.addEventListener("mintify:data-updated", handleRealtimeUpdate);
-    return () => window.removeEventListener("mintify:data-updated", handleRealtimeUpdate);
+    
+    return () => {
+      window.removeEventListener("mintify:data-updated", handleRealtimeUpdate);
+      bc.close(); 
+    };
   }, []);
 
-  // --- STATE UPDATERS ---
+  // --- HELPERS ---
+  const broadcastUpdate = () => {
+    const bc = new BroadcastChannel('mintify_sync');
+    bc.postMessage('refresh');
+    bc.close();
+  };
+
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(null), 3000);
+  };
+
   const handleTransactionUpdate = (updatedTx) => {
     if (!updatedTx) return;
     setTransactions((prevTransactions) => 
@@ -120,11 +143,6 @@ function Dashboard({ onLogout, userName }) {
       prevTransactions.filter((tx) => (tx._id || tx.id) !== deletedId)
     );
   };
-  
-  const showSuccess = (msg) => {
-    setSuccessMsg(msg);
-    setTimeout(() => setSuccessMsg(null), 3000);
-  };
 
   // --- HANDLERS ---
   const handleAddTransaction = async (e) => {
@@ -133,7 +151,6 @@ function Dashboard({ onLogout, userName }) {
       setSavingTx(true);
       const res = await createTransaction({ ...newTx, amount: Number(newTx.amount) });
       
-      // Use current timestamp if today for correct sorting
       const isToday = newTx.date === todayISO();
       const optimisticDate = isToday ? new Date().toISOString() : newTx.date;
       
@@ -149,6 +166,7 @@ function Dashboard({ onLogout, userName }) {
       setNewTx({ amount: "", type: "expense", category: "Food", description: "", date: todayISO() });
       
       showSuccess("📝 Transaction added");
+      broadcastUpdate(); 
 
     } catch (err) {
       setFormError("Failed to save.");
@@ -179,6 +197,7 @@ function Dashboard({ onLogout, userName }) {
       setIncomeTx({ amount: "", description: "", date: todayISO() });
       
       showSuccess("💰 Income added");
+      broadcastUpdate();
 
     } catch (err) {
       setIncomeError("Failed to save.");
@@ -191,6 +210,7 @@ function Dashboard({ onLogout, userName }) {
     await createBudget(budgetPayload);
     await fetchAllData();
     showSuccess("📊 Budget created");
+    broadcastUpdate();
   };
 
   // --- RENDER ---
