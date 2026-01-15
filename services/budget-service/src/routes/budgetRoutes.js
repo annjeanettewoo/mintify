@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { category, limit, period } = req.body;
+        const { category, limit, spent, period } = req.body;
 
         if (!category || typeof limit !== 'number') {
             return res
@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
             userId,
             category,
             limit,
+            spent: spent || 0,
             period: period || null
         });
 
@@ -56,11 +57,12 @@ router.put('/:id', async (req, res) => {
     try {
         const userId = req.user.id;
         const { id } = req.params;
-        const { category, limit, period } = req.body;
+        const { category, limit, spent, period } = req.body;
 
         const update = {};
         if (category !== undefined) update.category = category;
         if (limit !== undefined) update.limit = limit;
+        if (spent !== undefined) update.spent = spent;
         if (period !== undefined) update.period = period;
 
         const budget = await Budget.findOneAndUpdate(
