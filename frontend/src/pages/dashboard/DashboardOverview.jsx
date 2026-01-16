@@ -9,7 +9,7 @@ function DashboardOverview({
   barWidth,
   fmt,
   onAddTransactionClick,
-  onAddIncomeClick,   // 👈 NEW PROP
+  spendingMsg,
   onCategoryClick,
 }) {
   return (
@@ -58,13 +58,15 @@ function DashboardOverview({
               + Add transaction
             </button>
 
-            <button
-              type="button"
-              className="add-income-btn"
-              onClick={onAddIncomeClick}
-            >
-              + Add income
-            </button>
+            <p style={{ 
+              marginTop: "16px", 
+              fontSize: "13px", 
+              color: "#6b6b6b", 
+              fontStyle: "italic",
+              fontWeight: "500"
+            }}>
+              {spendingMsg}
+            </p>
 
             <div className="legend-row">
               <span className="legend-dot orange" />

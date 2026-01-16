@@ -10,7 +10,7 @@ import Calendar from "./Calendar/Calendar.jsx";
 import DashboardOverview from "./dashboard/DashboardOverview";
 import CategoryPage from "./dashboard/CategoryPage";
 import AddTransactionModal from "./dashboard/AddTransactionModal";
-import AddIncomeModal from "./dashboard/AddIncomeModal";
+// Removed AddIncomeModal import
 
 import useNotifications from "../hooks/useNotif"; 
 
@@ -52,15 +52,12 @@ function Dashboard({ onLogout, userName }) {
   const [formError, setFormError] = useState(null);
   const [newTx, setNewTx] = useState({ amount: "", type: "expense", category: "Food", description: "", date: todayISO() });
 
-  const [showIncomeForm, setShowIncomeForm] = useState(false);
-  const [savingIncome, setSavingIncome] = useState(false);
-  const [incomeError, setIncomeError] = useState(null);
-  const [incomeTx, setIncomeTx] = useState({ amount: "", description: "", date: todayISO() });
+  // Removed Income Modal State
 
   // --- DATA FETCHING ---
   const fetchAllData = async () => {
     try {
-      console.log("🔄 Fetching fresh data...");
+      console.log("売 Fetching fresh data...");
       const [budgetsRes, transactionsRes] = await Promise.all([
         fetchBudgets(),
         fetchTransactions(),
@@ -89,17 +86,15 @@ function Dashboard({ onLogout, userName }) {
 
   // --- SYNC LISTENERS ---
   useEffect(() => {
-    // 1. WebSocket / Event Listener
     const handleRealtimeUpdate = async () => {
       await new Promise(resolve => setTimeout(resolve, 500));
       await fetchAllData();
     };
 
-    // 2. BroadcastChannel Listener (Cross-tab)
     const bc = new BroadcastChannel('mintify_sync');
     bc.onmessage = (event) => {
       if (event.data === 'refresh') {
-        console.log("📡 Cross-tab signal received: Refreshing");
+        console.log("藤 Cross-tab signal received: Refreshing");
         fetchAllData();
       }
     };
@@ -165,7 +160,7 @@ function Dashboard({ onLogout, userName }) {
       setShowAddForm(false);
       setNewTx({ amount: "", type: "expense", category: "Food", description: "", date: todayISO() });
       
-      showSuccess("📝 Transaction added");
+      showSuccess("統 Transaction added");
       broadcastUpdate(); 
 
     } catch (err) {
@@ -175,41 +170,12 @@ function Dashboard({ onLogout, userName }) {
     }
   };
 
-  const handleAddIncome = async (e) => {
-    e.preventDefault();
-    try {
-      setSavingIncome(true);
-      const res = await createTransaction({ type: "income", amount: Number(incomeTx.amount), description: incomeTx.description, date: incomeTx.date });
-      
-      const isToday = incomeTx.date === todayISO();
-      const optimisticDate = isToday ? new Date().toISOString() : incomeTx.date;
-
-      const createdTx = res || { 
-        ...incomeTx, 
-        type: "income", 
-        amount: Number(incomeTx.amount), 
-        date: optimisticDate,
-        _id: `temp-${Date.now()}` 
-      };
-
-      setTransactions((prev) => [createdTx, ...prev]);
-      setShowIncomeForm(false);
-      setIncomeTx({ amount: "", description: "", date: todayISO() });
-      
-      showSuccess("💰 Income added");
-      broadcastUpdate();
-
-    } catch (err) {
-      setIncomeError("Failed to save.");
-    } finally {
-      setSavingIncome(false);
-    }
-  };
+  // Removed handleAddIncome
 
   const handleCreateBudget = async (budgetPayload) => {
     await createBudget(budgetPayload);
     await fetchAllData();
-    showSuccess("📊 Budget created");
+    showSuccess("投 Budget created");
     broadcastUpdate();
   };
 
@@ -237,6 +203,23 @@ function Dashboard({ onLogout, userName }) {
   const totalCategorySpent = useMemo(() => 
     categoryTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0), 
   [categoryTransactions]);
+
+  // --- COMPARE TO LAST MONTH ---
+  const comparisonText = useMemo(() => {
+    const now = new Date();
+    // Last month calculation
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthISO = lastMonthDate.toISOString().slice(0, 7); // YYYY-MM
+    
+    const lastMonthSpent = expenseTransactions
+      .filter(t => t.date && t.date.startsWith(lastMonthISO))
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    
+    if (totalSpent > lastMonthSpent) return "You are spending more than last month";
+    if (totalSpent < lastMonthSpent) return "You are spending less than last month";
+    return "You are spending equal to last month";
+  }, [expenseTransactions, totalSpent]);
+
 
   return (
     <div className="app">
@@ -287,7 +270,8 @@ function Dashboard({ onLogout, userName }) {
                 barWidth={barWidth}
                 fmt={fmt}
                 onAddTransactionClick={() => setShowAddForm(true)}
-                onAddIncomeClick={() => setShowIncomeForm(true)}
+                // Removed onAddIncomeClick
+                spendingMsg={comparisonText} // ✅ NEW PROP PASSED HERE
                 onCategoryClick={(cat) => { setActiveCategoryView(cat); setActiveView("category"); }}
                 onViewReports={() => navigate("/report/spending")}
               />
@@ -336,15 +320,7 @@ function Dashboard({ onLogout, userName }) {
               onSubmit={handleAddTransaction}
             />
 
-            <AddIncomeModal
-              open={showIncomeForm}
-              incomeTx={incomeTx}
-              setIncomeTx={setIncomeTx}
-              saving={savingIncome}
-              error={incomeError}
-              onClose={() => setShowIncomeForm(false)}
-              onSubmit={handleAddIncome}
-            />
+            {/* Removed AddIncomeModal Component */}
           </main>
         </div>
       </div>
