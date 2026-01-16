@@ -3,8 +3,7 @@ import keycloak from "./keycloak";
 
 // All app APIs go via the gateway-service
 // base URL comes from .env: VITE_API_BASE_URL=http://localhost:4000
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://gateway.ltu-m7011e-9.se";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://gateway.ltu-m7011e-9.se";
 
 
 async function getFreshToken(minValiditySec = 60) {
@@ -84,20 +83,20 @@ export async function fetchBudgets() {
   return safeJson(res, []);
 }
 
-export async function createBudget({ category, limit }) {
+export async function createBudget({ category, limit, spent, period }) {
   const res = await authFetch("/api/budgets", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ category, limit: Number(limit) }),
+    body: JSON.stringify({ category, limit: Number(limit), spent: Number(spent || 0), period }),
   });
   return safeJson(res);
 }
 
-export async function updateBudget(id, { category, limit }) {
+export async function updateBudget(id, { category, limit, spent, period }) {
   const res = await authFetch(`/api/budgets/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ category, limit: Number(limit) }),
+    body: JSON.stringify({ category, limit: Number(limit), spent: Number(spent || 0), period }),
   });
   return safeJson(res);
 }
