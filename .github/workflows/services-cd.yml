@@ -152,6 +152,7 @@ jobs:
             VITE_KEYCLOAK_URL=https://keycloak.ltu-m7011e-9.se
             VITE_KEYCLOAK_REALM=mintify
             VITE_KEYCLOAK_CLIENT_ID=mintify-frontend
+            VITE_NOTIF_WS_URL=wss://notif.ltu-m7011e-9.se/ws
 
       - name: Update frontend values.yaml
         if: steps.changes.outputs.frontend == 'true'
