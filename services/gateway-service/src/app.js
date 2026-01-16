@@ -1,4 +1,5 @@
 // services/gateway-service/src/app.js
+// bump deploy
 const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
